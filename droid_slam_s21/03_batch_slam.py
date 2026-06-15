@@ -40,7 +40,7 @@ _sys.path.insert(0, str(pathlib.Path(__file__).parent.parent))
 from umi.common.cv_util import draw_s21_slam_mask
 
 
-DROID_SLAM_DIR = pathlib.Path(ROOT_DIR).parent / 'DROID-SLAM'
+DROID_SLAM_DIR = pathlib.Path(__file__).parent.parent.parent / 'DROID-SLAM'
 DROID_CONDA_ENV = 'droid'
 
 
