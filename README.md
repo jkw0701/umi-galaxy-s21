@@ -88,13 +88,13 @@ python run_slam_pipeline_s21.py process-droid \
 │   ├── frame_timestamps.csv
 │   ├── metadata.json
 │   └── sensor_data.jsonl
-├── session_20260610_160512/        ← 에피소드 데이터 (타임스탬프 형식)
+├── session_20260610_160512/        ← 앱으로 촬영한 데모 1개 (촬영 시각이 폴더명)
 │   ├── camera_ultrawide.mp4
 │   ├── frame_timestamps.csv
 │   ├── metadata.json
 │   ├── sensor_data.jsonl
 │   └── sync_frames.jsonl
-├── session_20260610_161926/
+├── session_20260610_161926/        ← 데모 1개 (총 데모 수만큼 폴더 존재)
 └── ...
 ```
 
