@@ -1,0 +1,143 @@
+defaults:
+  - _self_
+  - task: umi
+
+name: train_diffusion_unet_timm
+_target_: diffusion_policy.workspace.train_diffusion_unet_image_workspace.TrainDiffusionUnetImageWorkspace
+
+task_name: ${task.name}
+shape_meta: ${task.shape_meta}
+exp_name: "default"
+
+n_action_steps: 12
+
+policy:
+  _target_: diffusion_policy.policy.diffusion_unet_timm_policy.DiffusionUnetTimmPolicy
+
+  shape_meta: ${shape_meta}
+  
+  noise_scheduler:
+    _target_: diffusers.DDIMScheduler
+    num_train_timesteps: 50
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: squaredcos_cap_v2
+    clip_sample: True
+    set_alpha_to_one: True
+    steps_offset: 0
+    prediction_type: epsilon
+
+  obs_encoder:
+    _target_: diffusion_policy.model.vision.timm_obs_encoder.TimmObsEncoder
+    shape_meta: ${shape_meta}
+
+    model_name: 'vit_base_patch16_clip_224.openai'
+    pretrained: True
+    frozen: False
+
+    global_pool: ''
+    feature_aggregation: 'attention_pool_2d'
+    position_encording: 'sinusoidal'
+    downsample_ratio: 32
+
+    transforms:
+      - type: RandomCrop
+        ratio: 0.95
+      - _target_: torchvision.transforms.ColorJitter
+        brightness: 0.3
+        contrast: 0.4
+        saturation: 0.5
+        hue: 0.08
+
+    use_group_norm: True
+    share_rgb_model: False
+    imagenet_norm: True
+
+  num_inference_steps: 16
+  obs_as_global_cond: True
+  diffusion_step_embed_dim: 128
+  down_dims: [256,512,1024]
+  kernel_size: 5
+  n_groups: 8
+  cond_predict_scale: True
+  input_pertub: 0.01          # 0.1 → 0.01 (노이즈 최소화)
+  train_diffusion_n_samples: 1
+
+ema:
+  _target_: diffusion_policy.model.diffusion.ema_model.EMAModel
+  update_after_step: 0
+  inv_gamma: 1.0
+  power: 0.75
+  min_value: 0.0
+  max_value: 0.9999
+
+dataloader:
+  batch_size: 16              # 32 → 16 (데이터 22개에 맞게 축소)
+  num_workers: 8
+  shuffle: True
+  pin_memory: True
+  persistent_workers: True
+
+val_dataloader:
+  batch_size: 16              # 32 → 16
+  num_workers: 8
+  shuffle: False
+  pin_memory: True
+  persistent_workers: True
+
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 3.0e-4                  # 유지 (epoch으로 보완)
+  betas: [0.95, 0.999]
+  eps: 1.0e-8
+  weight_decay: 1.0e-3        # 1e-6 → 1e-3 (강한 정규화로 불필요한 출력 강하게 억제)
+
+training:
+  device: "cuda:0"
+  seed: 42
+  debug: False
+  resume: True
+  lr_scheduler: cosine
+  lr_warmup_steps: 300        # 2000 → 300 (빠른 시작)
+  num_epochs: 200              # 30 → 200 (더 오래 학습)
+  gradient_accumulate_every: 4 # 2 → 4 (gradient 안정화)
+  use_ema: True
+  freeze_encoder: False
+  rollout_every: 10
+  checkpoint_every: 10
+  val_every: 1
+  sample_every: 5
+  max_train_steps: null
+  max_val_steps: null
+  tqdm_interval_sec: 1.0
+
+logging:
+  project: umi
+  resume: False
+  mode: offline
+  name: ${now:%Y.%m.%d-%H.%M.%S}_${name}_${task_name}
+  tags: ["${name}", "${task_name}", "${exp_name}"]
+  id: null
+  group: null
+
+checkpoint:
+  topk:
+    monitor_key: train_loss
+    mode: min
+    k: 20
+    format_str: 'epoch={epoch:04d}-train_loss={train_loss:.3f}.ckpt'
+  save_last_ckpt: True
+  save_last_snapshot: False
+
+multi_run:
+  run_dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+  wandb_name_base: ${now:%Y.%m.%d-%H.%M.%S}_${name}_${task_name}
+
+hydra:
+  job:
+    override_dirname: ${name}
+  run:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+  sweep:
+    dir: data/outputs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}
+    subdir: ${hydra.job.num}

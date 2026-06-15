@@ -1,0 +1,46 @@
+# =================================================================
+# # UMI Evaluation Config for a Single Franka Arm (ROS2)
+# # with a Dynamixel Gripper
+# # This file is structured to be compatible with eval_real_dev.py
+# =================================================================
+
+# 1. Robot Arm Configuration
+robot:
+  robot_type: 'franka'
+  robot_ip: '192.168.1.10' # For identification, not connection
+  robot_obs_latency: 0.001
+  action_latency: 0.2
+
+# 2. Gripper Configuration
+gripper:
+  gripper_type: 'dynamixel'
+  device_name: '/dev/ttyUSB0'
+  baudrate: 57600
+  dxl_ids: [10, 11]
+  gripper_max_width_mm: 87.0
+  motor_positions_open: [3149, 915]
+  motor_positions_closed: [2024, 2024]
+  gripper_obs_latency: 0.01
+  action_latency: 0.15
+
+# 3. Camera Configuration
+# This section contains parameters directly related to the camera hardware setup.
+camera:
+  camera_reorder: [0] # Example for two cameras.
+  # camera_reorder: null
+  resolutions: [[1920,1080]]  # Camera resolution (width, height)
+  # Add other specific camera hardware settings here if needed.
+
+# 4. Environment Configuration
+# This section contains parameters related to how the environment behaves.
+env:
+  align_camera_idx: 0
+  camera_obs_latency: 0.144
+  robot_obs_latency : 0.001
+  robot_action_latency : 0.2
+  # Observation horizon steps for the policy.
+  camera_obs_horizon: 2
+  robot_obs_horizon: 2
+  gripper_obs_horizon: 2
+  # Visualizer settings
+  enable_multi_cam_vis: False

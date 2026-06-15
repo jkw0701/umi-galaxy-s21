@@ -1,0 +1,66 @@
+%YAML:1.0
+
+#--------------------------------------------------------------------------------------------
+# Camera Parameters (S21 1080p pinhole, auto-generated)
+#--------------------------------------------------------------------------------------------
+Camera.type: "PinHole"
+
+Camera.fx: 782.407900
+Camera.fy: 783.441708
+Camera.cx: 972.699558
+Camera.cy: 541.652877
+
+Camera.k1: -0.00155760
+Camera.k2: 0.01773884
+Camera.p1: -0.00040190
+Camera.p2: -0.00152647
+Camera.k3: -0.01294606
+
+Camera.width: 1920
+Camera.height: 1080
+Camera.fps: 30.0
+
+Camera.RGB: 1
+
+#--------------------------------------------------------------------------------------------
+# IMU Parameters (reasonable defaults for smartphone IMU, tune if needed)
+#--------------------------------------------------------------------------------------------
+IMU.NoiseGyro: 1.7e-4
+IMU.NoiseAcc: 2.0e-3
+IMU.GyroWalk: 1.9e-5
+IMU.AccWalk: 3.0e-3
+IMU.Frequency: 200
+
+Tbc: !!opencv-matrix
+  rows: 4
+  cols: 4
+  dt: f
+  data: [1.0, 0.0, 0.0, 0.0,
+         0.0, 1.0, 0.0, 0.0,
+         0.0, 0.0, 1.0, 0.0,
+         0.0, 0.0, 0.0, 1.0]
+
+IMU.InsertKFsWhenLost: 1
+
+#--------------------------------------------------------------------------------------------
+# ORB Parameters
+#--------------------------------------------------------------------------------------------
+ORBextractor.nFeatures: 1250
+ORBextractor.scaleFactor: 1.2
+ORBextractor.nLevels: 8
+ORBextractor.iniThFAST: 20
+ORBextractor.minThFAST: 7
+
+#--------------------------------------------------------------------------------------------
+# Viewer Parameters
+#--------------------------------------------------------------------------------------------
+Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameLineWidth: 1.0
+Viewer.GraphLineWidth: 0.9
+Viewer.PointSize: 2.0
+Viewer.CameraSize: 0.08
+Viewer.CameraLineWidth: 3.0
+Viewer.ViewpointX: 0.0
+Viewer.ViewpointY: -0.7
+Viewer.ViewpointZ: -3.5
+Viewer.ViewpointF: 500.0
