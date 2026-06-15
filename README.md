@@ -80,15 +80,43 @@ python run_slam_pipeline_s21.py process-droid \
   /path/to/session_dir
 ```
 
+실행 전 폴더 구조 (앱으로 수집한 원본):
+```
+/path/to/session_dir/
+├── gripper_calibration/            ← 그리퍼 캘리브레이션 영상 (사전 촬영)
+│   ├── camera_ultrawide.mp4
+│   ├── frame_timestamps.csv
+│   ├── metadata.json
+│   └── sensor_data.jsonl
+├── session_20260610_160512/        ← 에피소드 데이터 (타임스탬프 형식)
+│   ├── camera_ultrawide.mp4
+│   ├── frame_timestamps.csv
+│   ├── metadata.json
+│   ├── sensor_data.jsonl
+│   └── sync_frames.jsonl
+├── session_20260610_161926/
+└── ...
+```
+
 실행 후 생성되는 파일:
 ```
 /path/to/session_dir/
-├── demos/
-│   ├── mapping/
-│   ├── gripper_calibration_<device_id>/
-│   ├── demo_.../
+├── demos/                                          ← 파이프라인이 자동 생성
+│   ├── gripper_calibration_Galaxy_S21_.../         ← 그리퍼 캘리브레이션 처리 결과
+│   │   ├── raw_video.mp4
+│   │   ├── tag_detection.pkl
+│   │   └── gripper_range.json
+│   ├── demo_Galaxy_S21_1970.01.16_11.03.33.../    ← 각 에피소드 처리 결과
+│   │   ├── raw_video.mp4
 │   │   ├── camera_trajectory.csv   ← SLAM 포즈 결과
-│   │   └── tag_detection.pkl       ← ArUco 검출 결과
+│   │   ├── tag_detection.pkl       ← ArUco 검출 결과
+│   │   ├── tx_slam_tag.json        ← SLAM↔태그 좌표 변환
+│   │   ├── frame_timestamps.csv
+│   │   ├── sensor_data.jsonl
+│   │   ├── metadata.json
+│   │   ├── droid_stdout.txt        ← DROID-SLAM 로그
+│   │   └── droid_stderr.txt
+│   ├── demo_Galaxy_S21_.../
 │   └── ...
 └── dataset_plan.pkl                ← Step 2 입력 파일
 ```
