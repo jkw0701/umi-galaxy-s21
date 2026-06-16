@@ -1,11 +1,11 @@
 """
-Galaxy S21 version of 06_generate_dataset_plan.py — No-SLAM variant.
+Galaxy S21 용 데이터셋 플랜 생성 스크립트.
 
-Instead of a single global tx_slam_tag from demos/mapping/tx_slam_tag.json,
-each demo has its own tx_slam_tag.json (ARCore world frame varies per demo).
+ORB-SLAM3 기반 파이프라인과 달리 DROID-SLAM/ARCore는 에피소드마다 좌표계가 다르므로,
+전역 tx_slam_tag 대신 각 에피소드 폴더의 tx_slam_tag.json을 읽어 처리한다.
 
 Usage:
-    python droid_slam_s21/06_generate_dataset_plan_no_slam.py -i <session_dir>
+    python droid_slam_s21/06_generate_dataset_plan.py -i <session_dir>
 """
 
 # %%

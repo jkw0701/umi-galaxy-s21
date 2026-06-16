@@ -21,7 +21,7 @@ DROID-SLAM 궤적의 누적 드리프트를 교정합니다.
     pgo_summary.png            ← 교정 전/후 비교 그래프
 
 파이프라인 통합:
-    06_generate_dataset_plan_no_slam.py 의 --csv 인자에
+    06_generate_dataset_plan.py 의 --csv 인자에
     camera_trajectory_pgo.csv 를 넣으면 됩니다.
     (scale_factor는 tx_slam_tag.json 에서 그대로 읽음)
 """

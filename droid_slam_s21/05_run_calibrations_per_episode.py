@@ -1,43 +1,22 @@
 """
-Per-demo calibration for the no-SLAM pipeline (Galaxy S21).
+Per-episode calibration for Galaxy S21 (DROID-SLAM / ARCore).
 
-Each ARCore recording has its own world frame, so we compute tx_slam_tag
-per-demo. Two modes:
+ORB-SLAM3와 달리 DROID-SLAM과 ARCore는 에피소드마다 독립적인 좌표계를 가진다.
+각 에피소드별로 tx_slam_tag를 계산한다. 두 가지 모드를 지원한다.
 
   [default] --ref first_pose
-    Use the first valid ARCore pose as the episode reference frame.
-    No ArUco table tags required. The policy learns trajectories
-    relative to the gripper's starting pose.
+    첫 번째 유효한 포즈를 기준 좌표계로 사용한다.
+    ArUco 테이블 태그가 불필요하다.
 
   --ref aruco
-    Run calibrate_slam_tag.py using ArUco table tags.
-    Requires the table ArUco tag to be visible in every demo.
-    All demos are expressed in the table frame.
-
-Coordinate frame note:
-  ARCore world frame is Y-up (gravity = -Y).
-  UMI/GoPro pipeline expects Z-up (gravity = -Z).
-
-  To keep the dataset consistent with the GoPro pipeline and the robot
-  deployment code, tx_slam_tag is defined so that the resulting "tag frame"
-  is Z-up.  This is done by applying R_arcore_to_zup = Rx(-90°):
-
-      ARCore:  X=right,  Y=up,      Z=backward (away from scene)
-      Z-up:    X=right,  Y=forward, Z=up
-
-  Rotation matrix (columns = Z-up axes expressed in ARCore frame):
-      R = Rx(+90°) = [[1,  0,  0],
-                      [0,  0, -1],
-                      [0,  1,  0]]
-
-  After this fix the dataset EEF Z-axis corresponds to physical height,
-  matching the GoPro-based datasets and the robot deployment code.
+    ArUco 테이블 태그 기준으로 좌표계를 정렬한다.
+    모든 데모 영상에 테이블 마커가 보여야 한다.
 
 Gripper range calibration (gripper ArUco tags) is always performed.
 
 Usage:
-    python droid_slam_s21/05_run_calibrations_no_slam.py <session_dir>
-    python droid_slam_s21/05_run_calibrations_no_slam.py --ref aruco <session_dir>
+    python droid_slam_s21/05_run_calibrations_per_episode.py <session_dir>
+    python droid_slam_s21/05_run_calibrations_per_episode.py --ref aruco <session_dir>
 """
 
 import sys

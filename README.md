@@ -216,12 +216,10 @@ python run_slam_pipeline_s21.py process-droid \
 | `droid_slam_s21/00_process_videos.py` | 세션 폴더의 영상 파일을 `demos/` 구조로 정리 |
 | `droid_slam_s21/03_batch_slam.py` | 각 데모 영상에서 프레임 추출 → DROID-SLAM 실행 → `camera_trajectory.csv` 생성. `droid` conda 환경을 자동 호출 |
 | `droid_slam_s21/04_detect_aruco.py` | 영상에서 ArUco 마커를 검출해 `tag_detection.pkl` 생성. 좌표 기준점 설정에 사용 |
-| `droid_slam_s21/05_run_calibrations_no_slam.py` | SLAM 궤적과 ArUco 태그 좌표를 결합해 그리퍼 캘리브레이션 및 `tx_slam_tag.json` 생성 |
-| `droid_slam_s21/06_generate_dataset_plan_no_slam.py` | 전체 처리 결과를 종합해 `dataset_plan.pkl` 생성. 다음 단계(Step 2)의 입력 파일 |
+| `droid_slam_s21/05_run_calibrations_per_episode.py` | SLAM 궤적과 ArUco 태그 좌표를 결합해 그리퍼 캘리브레이션 및 `tx_slam_tag.json` 생성. 에피소드별로 독립적으로 수행 |
+| `droid_slam_s21/06_generate_dataset_plan.py` | 전체 처리 결과를 종합해 `dataset_plan.pkl` 생성. 다음 단계(Step 2)의 입력 파일 |
 
 > **파일 번호가 00 → 03으로 건너뛰는 이유**: 원본 UMI(ORB-SLAM3)에는 IMU 변환(`01`)과 맵 생성(`02`) 단계가 있었으나 DROID-SLAM 버전에서는 불필요해 제거됐다.
->
-> **`_no_slam` 접미사의 의미**: 정확히는 "ORB-SLAM3 글로벌 맵을 사용하지 않는다"는 뜻이다. ORB-SLAM3는 모든 에피소드를 하나의 공유 맵에 등록해 글로벌 좌표계를 구성하지만, DROID-SLAM은 에피소드마다 독립적인 좌표계를 가진다. 이 버전은 글로벌 맵 없이 에피소드별로 캘리브레이션을 수행하며, DROID-SLAM과 ARCore 모두에서 사용된다.
 
 하나의 스크립트라도 실패하면 파이프라인이 중단된다. 각 데모 폴더의 `droid_stderr.txt`에서 오류 내용을 확인할 수 있다.
 

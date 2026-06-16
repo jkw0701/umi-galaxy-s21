@@ -173,7 +173,7 @@ def process_droid(session_dir, calibration_dir, ref, ignore_gripper_tags, stride
                 '--max_center_dist', str(max_center_dist),
                 '--min_tag_dist',    str(min_tag_dist),
             ]
-        _run_step(script_dir, "05_run_calibrations_no_slam.py",
+        _run_step(script_dir, "05_run_calibrations_per_episode.py",
                   "03 Run Calibrations (DROID-SLAM)", calib_args)
 
         # Step 04: Generate dataset plan
@@ -182,7 +182,7 @@ def process_droid(session_dir, calibration_dir, ref, ignore_gripper_tags, stride
             dataset_plan_args.append('--ignore_gripper_tags')
         if pgo:
             dataset_plan_args.append('--use_pgo')
-        _run_step(script_dir, "06_generate_dataset_plan_no_slam.py",
+        _run_step(script_dir, "06_generate_dataset_plan.py",
                   "04 Generate Dataset Plan (DROID-SLAM)",
                   dataset_plan_args)
 
@@ -274,7 +274,7 @@ def process_arcore(session_dir, calibration_dir, ref, ignore_gripper_tags,
                 '--max_center_dist', str(max_center_dist),
                 '--min_tag_dist',    str(min_tag_dist),
             ]
-        _run_step(script_dir, "05_run_calibrations_no_slam.py",
+        _run_step(script_dir, "05_run_calibrations_per_episode.py",
                   "03 Run Calibrations (ARCore)", calib_args)
 
         # Step 04: Generate dataset plan
@@ -283,7 +283,7 @@ def process_arcore(session_dir, calibration_dir, ref, ignore_gripper_tags,
             dataset_plan_args.append('--ignore_gripper_tags')
         if pgo:
             dataset_plan_args.append('--use_pgo')
-        _run_step(script_dir, "06_generate_dataset_plan_no_slam.py",
+        _run_step(script_dir, "06_generate_dataset_plan.py",
                   "04 Generate Dataset Plan (ARCore)",
                   dataset_plan_args)
 
