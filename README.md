@@ -219,7 +219,9 @@ python run_slam_pipeline_s21.py process-droid \
 | `droid_slam_s21/05_run_calibrations_no_slam.py` | SLAM 궤적과 ArUco 태그 좌표를 결합해 그리퍼 캘리브레이션 및 `tx_slam_tag.json` 생성 |
 | `droid_slam_s21/06_generate_dataset_plan_no_slam.py` | 전체 처리 결과를 종합해 `dataset_plan.pkl` 생성. 다음 단계(Step 2)의 입력 파일 |
 
-> 파일 번호가 00, 03, 04, 05, 06으로 건너뛰는 것은 의도적이다. 원본 UMI(ORB-SLAM3 기반)의 01, 02번 스크립트가 DROID-SLAM 버전에서는 불필요해 제거됐다.
+> **파일 번호가 00 → 03으로 건너뛰는 이유**: 원본 UMI(ORB-SLAM3)에는 IMU 변환(`01`)과 맵 생성(`02`) 단계가 있었으나 DROID-SLAM 버전에서는 불필요해 제거됐다.
+>
+> **`_no_slam` 접미사의 의미**: ORB-SLAM3는 모든 에피소드를 하나의 글로벌 맵에 등록하지만, DROID-SLAM은 에피소드마다 독립적인 좌표계를 가진다. `no_slam` 버전은 글로벌 맵 없이 에피소드별로 캘리브레이션을 수행하는 버전이다.
 
 하나의 스크립트라도 실패하면 파이프라인이 중단된다. 각 데모 폴더의 `droid_stderr.txt`에서 오류 내용을 확인할 수 있다.
 
