@@ -70,7 +70,7 @@ python receive_server.py
 
 ### Step 1 — DROID-SLAM 실행
 
-세션 폴더 안에 에피소드 데이터와 `gripper_calibration` 폴더가 준비된 상태에서 실행한다.
+명령어 하나로 세션 폴더 안의 **모든 에피소드에 대해 DROID-SLAM을 일괄 실행**한다. 에피소드마다 개별로 실행할 필요가 없다.
 
 ```bash
 # 이 리포 루트에서 실행
@@ -80,10 +80,19 @@ python run_slam_pipeline_s21.py process-droid \
   /path/to/session_dir
 ```
 
+`/path/to/session_dir` 아래의 모든 `session_*` 폴더를 자동 탐색해 순차적으로 SLAM을 수행하고, 마지막에 `dataset_plan.pkl`을 생성한다.
+
+#### gripper_calibration 폴더
+
+세션 폴더 안에 **`gripper_calibration`이라는 이름의 폴더가 반드시 1개** 있어야 한다. 이 폴더는 그리퍼의 열림/닫힘 범위를 보정하는 데 사용된다.
+
+- 별도로 촬영할 필요 없이, **모든 데모 촬영이 끝난 뒤** 아무 에피소드 폴더 하나를 골라 이름을 `gripper_calibration`으로 변경하면 된다.
+- **정확히 1개만 있으면 된다.** 나머지 에피소드 폴더는 그리퍼 캘리브레이션 처리 없이 SLAM 및 데이터 처리만 수행한다.
+
 실행 전 폴더 구조 (앱으로 수집한 원본):
 ```
 /path/to/session_dir/
-├── gripper_calibration/            ← 그리퍼 캘리브레이션 영상 (사전 촬영)
+├── gripper_calibration/            ← 에피소드 폴더 중 하나를 이름 변경 (1개만 필요)
 │   ├── camera_ultrawide.mp4
 │   ├── frame_timestamps.csv
 │   ├── metadata.json
