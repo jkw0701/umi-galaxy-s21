@@ -252,7 +252,7 @@ Done: N/N succeeded
 
 | 오류 | 원인 | 해결 |
 |------|------|------|
-| `av=10.0.0 is not installable` | conda 채널 순서 문제 | `conda-forge`를 첫 번째 채널로 설정 |
+| `av=10.0.0 is not installable` | conda 채널 순서 문제 | `conda-forge`를 첫 번째 채널로 설정 (`conda-forge` 채널에만 Python 3.10용 빌드가 존재) |
 | `wandb` 임포트 오류 | protobuf 버전 충돌 | `pip install protobuf==4.25.8` |
 | `ModuleNotFoundError: No module named 'torch'` (lietorch 빌드 시) | `pip install -e` 방식 문제 | `python setup.py develop` 사용 |
 | `libc10.so: cannot open shared object file` | torch 라이브러리 경로 미등록 | [3-7 영구 환경변수 등록](#3-7-영구-환경변수-등록) |
