@@ -41,19 +41,26 @@ bash Miniforge3-Linux-x86_64.sh
 
 ## 2. umi conda 환경 설치
 
-메인 파이프라인(SLAM 제외 전 단계)에서 사용하는 환경이다.
+메인 파이프라인 전체(SLAM, zarr 생성, 학습)에서 사용하는 환경이다.
 
 ```bash
 conda env create -f conda_environment.yaml -n umi
 conda activate umi
 ```
 
-> **주의**: 채널 순서(`conda-forge`가 첫 번째)가 중요하다. 순서가 잘못되면 `av=10.0.0` 패키지의 Python 3.9 빌드를 찾지 못해 설치가 실패한다.
+torch는 conda yaml의 pip 섹션에 `--extra-index-url`로 지정되어 있으나, 환경에 따라 자동 적용이 안 될 수 있다. 그 경우 아래를 추가 실행한다:
+
+```bash
+pip install torch==2.11.0+cu128 torchvision==0.26.0+cu128 \
+  --index-url https://download.pytorch.org/whl/cu128
+```
+
+> **주의**: 채널 순서(`conda-forge`가 첫 번째)가 중요하다. 순서가 잘못되면 `av=10.0.0` 패키지 설치가 실패한다.
 
 ### 설치 확인
 
 ```bash
-python -c "import torch; print('torch:', torch.__version__); print('CUDA:', torch.version.cuda)"
+python -c "import torch; print('torch:', torch.__version__); print('CUDA:', torch.cuda.is_available())"
 python -c "import zarr; print('zarr:', zarr.__version__)"
 python -c "import cv2; print('opencv:', cv2.__version__)"
 python -c "import wandb; print('wandb:', wandb.__version__)"
@@ -61,11 +68,11 @@ python -c "import wandb; print('wandb:', wandb.__version__)"
 
 예상 출력:
 ```
-torch: 2.1.0+cu121
-CUDA: 12.1
+torch: 2.11.0+cu128
+CUDA: True
 zarr: 2.16.1
 opencv: 4.7.0
-wandb: 0.15.8
+wandb: 0.25.1
 ```
 
 ---

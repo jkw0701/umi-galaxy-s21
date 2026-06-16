@@ -50,11 +50,11 @@
 
 | 패키지 | 버전 |
 |--------|------|
-| Python | 3.9.18 |
-| torch | 2.1.0 (CUDA 12.1) |
-| torchvision | 0.16.0 |
-| numpy | 1.24.4 |
-| scipy | 1.11.4 |
+| Python | 3.10.13 |
+| torch | 2.11.0 (CUDA 12.8) |
+| torchvision | 0.26.0 |
+| numpy | 1.26.4 |
+| scipy | 1.13.1 |
 | zarr | 2.16.1 |
 | opencv-python | 4.7.0 |
 | av | 10.0.0 |
@@ -63,11 +63,20 @@
 | diffusers | 0.18.2 |
 | einops | 0.6.1 |
 | accelerate | 0.24.1 |
-| wandb | 0.15.8 |
+| wandb | 0.25.1 |
+
+> GPU 아키텍처별 torch 지원 범위: `sm_75` (RTX 20xx) ~ `sm_120` (RTX 50xx). RTX 20xx 이상이면 GPU 학습이 가능하다.
 
 ```bash
-conda env create -f conda_environment.yaml
+conda env create -f conda_environment.yaml -n umi
 conda activate umi
+```
+
+torch가 자동으로 설치되지 않은 경우 아래를 추가 실행한다:
+
+```bash
+pip install torch==2.11.0+cu128 torchvision==0.26.0+cu128 \
+  --index-url https://download.pytorch.org/whl/cu128
 ```
 
 ---

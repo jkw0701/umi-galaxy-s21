@@ -5,11 +5,11 @@ channels:
   - nvidia
   - defaults
 dependencies:
-  - python=3.9.18
+  - python=3.10.13
   - pip
-  - numpy=1.24.4
-  - scipy=1.11.4
-  - pandas=2.1
+  - numpy=1.26.4
+  - scipy=1.13.1
+  - pandas=2.1.4
   - py-opencv=4.7.0
   - av=10.0.0
   - pyyaml=6.0
@@ -17,8 +17,7 @@ dependencies:
   - zarr=2.16.1
   - numcodecs=0.11
   - hydra-core=1.2.0
-  - wandb=0.15.8
-  - protobuf=4.25.8
+  - wandb=0.25.1
   - dill=0.3.7
   - einops=0.6.1
   - diffusers=0.18.2
@@ -34,13 +33,15 @@ dependencies:
   - exiftool=12
   - aiohttp=3.9
   - aiofiles=23.2
-  - numba=0.57
+  - numba=0.60
   - matplotlib=3.7
   - ipykernel=6.23
   - k3d=2.15
   - pip:
-    - torch==2.1.0
-    - torchvision==0.16.0
+    - protobuf==4.25.8
+    - torch==2.11.0+cu128
+    - torchvision==0.26.0+cu128
+    - --extra-index-url https://download.pytorch.org/whl/cu128
     - scikit-fda==0.9
     - ray[default]==2.8.0
     - threadpoolctl==3.2
