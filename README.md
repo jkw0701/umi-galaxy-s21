@@ -33,21 +33,18 @@
 
 ### conda 환경 구성
 
-이 프로젝트는 두 개의 conda 환경을 사용한다.
+이 프로젝트는 두 개의 conda 환경을 사용한다. **아래 순서대로 설치**한다.
 
-| 환경 이름 | 용도 |
-|-----------|------|
-| `umi` | 메인 파이프라인 전체 (데이터 수신, zarr 생성, 학습, 평가) |
-| `droid` | DROID-SLAM 실행 전용 (`run_slam_pipeline_s21.py` 내부에서 자동 호출) |
+| 순서 | 환경 이름 | 용도 |
+|------|-----------|------|
+| 1 | `umi` | 메인 파이프라인 전체 (데이터 수신, zarr 생성, 학습, 평가) |
+| 2 | `droid` | DROID-SLAM 실행 전용 (`run_slam_pipeline_s21.py` 내부에서 자동 호출) |
 
 `run_slam_pipeline_s21.py`는 `umi` 환경에서 실행되며, SLAM 단계에서 내부적으로 `conda run -n droid`를 통해 `droid` 환경을 자동으로 호출한다. 사용자가 직접 `droid` 환경을 활성화할 필요는 없다.
 
 ---
 
-> **DROID-SLAM 설치 상세 가이드**: [INSTALL_DROID_SLAM.md](INSTALL_DROID_SLAM.md)
-> 초기 상태에서 SLAM 실행까지의 전 과정, 발생 가능한 오류 및 해결 방법을 포함한다.
-
-### 환경 1: `umi`
+### 환경 1: `umi` 설치
 
 **검증된 주요 패키지 버전:**
 
@@ -68,8 +65,6 @@
 | accelerate | 0.24.1 |
 | wandb | 0.15.8 |
 
-**설치:**
-
 ```bash
 conda env create -f conda_environment.yaml
 conda activate umi
@@ -77,7 +72,7 @@ conda activate umi
 
 ---
 
-### 환경 2: `droid` (DROID-SLAM 전용)
+### 환경 2: `droid` 설치 (DROID-SLAM 전용)
 
 **검증된 주요 패키지 버전:**
 
@@ -88,30 +83,9 @@ conda activate umi
 | CUDA | 12.8 |
 | lietorch | 0.2 |
 
-`lietorch`와 `droid_backends`는 CUDA 커널을 직접 컴파일하므로, **torch 및 CUDA 버전이 정확히 일치해야 한다.**
+`lietorch`와 `droid_backends`는 CUDA 커널을 직접 컴파일하므로 **torch 및 CUDA 버전이 정확히 일치해야 한다.** 설치 과정이 복잡하므로 상세 가이드를 참조한다.
 
-**설치:**
-
-```bash
-# 1. DROID-SLAM 저장소 클론
-git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git
-cd DROID-SLAM
-
-# 2. torch 2.11.0+cu128 기준으로 환경 생성
-conda create -n droid python=3.10
-conda activate droid
-pip install torch==2.11.0+cu128 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
-
-# 3. lietorch 및 droid_backends 빌드 (CUDA 커널 컴파일 — 수 분 소요)
-pip install -e thirdparty/lietorch
-python setup.py install
-
-# 4. 모델 가중치 다운로드
-# droid.pth 를 DROID-SLAM/ 폴더에 저장
-# 다운로드: https://drive.google.com/file/d/1PpqVt1H4maBa_GbPJp4NwxRsd9jk-elh
-```
-
-> `droid.pth` 경로는 `DROID-SLAM/droid.pth`이어야 한다. 기본값으로 이 경로를 탐색한다.
+> **➜ [INSTALL_DROID_SLAM.md](INSTALL_DROID_SLAM.md)** — 초기 상태에서 SLAM 실행까지의 전 과정, 발생 가능한 오류 및 해결 방법 포함
 
 ---
 
