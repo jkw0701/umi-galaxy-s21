@@ -154,8 +154,8 @@ python droid_slam_s21/07_generate_replay_buffer.py \
 로컬에서 만든 `.zarr.zip`을 학습 서버로 복사한 뒤 `.zarr`로 변환하고 학습을 실행한다.
 
 ```bash
-# .zarr.zip → .zarr 변환 (서버에서)
-unzip dataset_combined.zarr.zip -d data/dataset_combined.zarr
+# .zarr.zip → .zarr 이름 변경 (서버에서)
+cp dataset_combined.zarr.zip data/dataset_combined.zarr
 
 # 학습 실행
 CUDA_VISIBLE_DEVICES=0 python train.py \
