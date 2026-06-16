@@ -1,5 +1,7 @@
 import sys
 import os
+ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(ROOT_DIR)
 import cv2
 import numpy as np
 import zarr

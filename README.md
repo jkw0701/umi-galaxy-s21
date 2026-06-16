@@ -44,6 +44,9 @@
 
 ---
 
+> **DROID-SLAM 설치 상세 가이드**: [INSTALL_DROID_SLAM.md](INSTALL_DROID_SLAM.md)
+> 초기 상태에서 SLAM 실행까지의 전 과정, 발생 가능한 오류 및 해결 방법을 포함한다.
+
 ### 환경 1: `umi`
 
 **검증된 주요 패키지 버전:**
