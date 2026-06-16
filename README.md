@@ -248,6 +248,24 @@ python droid_slam_s21/07_generate_replay_buffer.py \
 
 ---
 
+### (선택) 결과 확인
+
+zarr.zip 생성 후 영상 재생 및 그래프로 궤적을 확인할 수 있다.
+
+**영상 재생** (프레임 단위 재생, `q`: 종료, `n`: 다음 에피소드):
+```bash
+python scripts_slam_s21/visualize_zarr.py /path/to/dataset.zarr.zip
+```
+
+**그래프 출력** (파일 2개 생성: 개요 + 6DOF 시계열):
+```bash
+python scripts_slam_s21/visualize_dataset_rpy.py \
+  -i /path/to/dataset.zarr.zip \
+  -o /path/to/trajectory.png
+```
+
+---
+
 ### Step 3 — 학습
 
 로컬에서 만든 `.zarr.zip`을 학습 서버로 복사한 뒤 `.zarr`로 변환하고 학습을 실행한다.
