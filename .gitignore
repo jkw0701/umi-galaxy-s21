@@ -14,3 +14,5 @@ build/
 wandb/
 eval_data/
 data/
+output/
+sample_data_for_droid_slam/
