@@ -211,13 +211,15 @@ python run_slam_pipeline_s21.py process-droid \
 
 `run_slam_pipeline_s21.py process-droid` 명령어 하나가 아래 4개 스크립트를 순서대로 호출한다. 모두 `droid_slam_s21/` 폴더에 위치한다.
 
-| 순서 | 파일 | 역할 |
-|------|------|------|
-| 00 | `droid_slam_s21/00_process_videos.py` | 세션 폴더의 영상 파일을 `demos/` 구조로 정리 |
-| 01 | `droid_slam_s21/03_batch_slam.py` | 각 데모 영상에서 프레임 추출 → DROID-SLAM 실행 → `camera_trajectory.csv` 생성. `droid` conda 환경을 자동 호출 |
-| 02 | `droid_slam_s21/04_detect_aruco.py` | 영상에서 ArUco 마커를 검출해 `tag_detection.pkl` 생성. 좌표 기준점 설정에 사용 |
-| 03 | `droid_slam_s21/05_run_calibrations_no_slam.py` | SLAM 궤적과 ArUco 태그 좌표를 결합해 그리퍼 캘리브레이션 및 `tx_slam_tag.json` 생성 |
-| 04 | `droid_slam_s21/06_generate_dataset_plan_no_slam.py` | 전체 처리 결과를 종합해 `dataset_plan.pkl` 생성. 다음 단계(Step 2)의 입력 파일 |
+| 파일 | 역할 |
+|------|------|
+| `droid_slam_s21/00_process_videos.py` | 세션 폴더의 영상 파일을 `demos/` 구조로 정리 |
+| `droid_slam_s21/03_batch_slam.py` | 각 데모 영상에서 프레임 추출 → DROID-SLAM 실행 → `camera_trajectory.csv` 생성. `droid` conda 환경을 자동 호출 |
+| `droid_slam_s21/04_detect_aruco.py` | 영상에서 ArUco 마커를 검출해 `tag_detection.pkl` 생성. 좌표 기준점 설정에 사용 |
+| `droid_slam_s21/05_run_calibrations_no_slam.py` | SLAM 궤적과 ArUco 태그 좌표를 결합해 그리퍼 캘리브레이션 및 `tx_slam_tag.json` 생성 |
+| `droid_slam_s21/06_generate_dataset_plan_no_slam.py` | 전체 처리 결과를 종합해 `dataset_plan.pkl` 생성. 다음 단계(Step 2)의 입력 파일 |
+
+> 파일 번호가 00, 03, 04, 05, 06으로 건너뛰는 것은 의도적이다. 원본 UMI(ORB-SLAM3 기반)의 01, 02번 스크립트가 DROID-SLAM 버전에서는 불필요해 제거됐다.
 
 하나의 스크립트라도 실패하면 파이프라인이 중단된다. 각 데모 폴더의 `droid_stderr.txt`에서 오류 내용을 확인할 수 있다.
 
