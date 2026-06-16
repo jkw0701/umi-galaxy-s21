@@ -276,6 +276,11 @@ CUDA_VISIBLE_DEVICES=0 python train.py \
 
 ### Step 4 — Franka 실제 로봇 평가
 
+> Franka 로봇 제어에 필요한 `zerorpc` 패키지는 `conda_environment.yaml`에 포함되어 있지 않다. 실제 로봇 평가 환경에서만 별도 설치가 필요하다.
+> ```bash
+> pip install zerorpc
+> ```
+
 ```bash
 python scripts_real/eval_real_umi_ensemble.py \
   --robot_config=example/eval_franka_robots_config.yaml \
