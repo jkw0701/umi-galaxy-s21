@@ -18,6 +18,20 @@ def get_val_mask(n_episodes, val_ratio, seed=0):
     return val_mask
 
 
+def downsample_mask(mask, max_n, seed=0):
+    train_mask = mask
+    if (max_n is not None) and (np.sum(train_mask) > max_n):
+        n_train = int(max_n)
+        curr_train_idxs = np.nonzero(train_mask)[0]
+        rng = np.random.default_rng(seed=seed)
+        train_idxs_idx = rng.choice(len(curr_train_idxs), size=n_train, replace=False)
+        train_idxs = curr_train_idxs[train_idxs_idx]
+        train_mask = np.zeros_like(train_mask)
+        train_mask[train_idxs] = True
+        assert np.sum(train_mask) == n_train
+    return train_mask
+
+
 class SequenceSampler:
     def __init__(self,
         shape_meta: dict,
