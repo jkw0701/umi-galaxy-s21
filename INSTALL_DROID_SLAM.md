@@ -144,11 +144,11 @@ open3d: 0.19.0
 ```bash
 export CUDA_HOME=/usr/local/cuda-12.8
 export PATH=$CUDA_HOME/bin:$PATH
-cd ~/DROID-SLAM
-python setup.py develop   # thirdparty/lietorch
+cd ~/DROID-SLAM/thirdparty/lietorch
+python setup.py develop
 ```
 
-> `pip install -e thirdparty/lietorch`는 `ModuleNotFoundError: No module named 'torch'` 오류가 발생할 수 있다. `python setup.py develop`을 사용한다.
+> `pip install -e .`는 `ModuleNotFoundError: No module named 'torch'` 오류가 발생할 수 있다. `python setup.py develop`을 사용한다.
 
 ### 3-5. droid_backends 빌드
 
