@@ -31,6 +31,19 @@
 
 ---
 
+### Miniforge 설치
+
+Anaconda 대신 Miniforge를 권장한다. 패키지 해결 속도가 빠르고 conda-forge 채널을 기본으로 사용한다.
+
+```bash
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+bash Miniforge3-Linux-x86_64.sh
+```
+
+설치 후 터미널을 재시작하거나 `source ~/.bashrc`를 실행한다.
+
+---
+
 ### conda 환경 구성
 
 이 프로젝트는 두 개의 conda 환경을 사용한다. **아래 순서대로 설치**한다.
@@ -72,11 +85,31 @@ conda env create -f conda_environment.yaml -n umi
 conda activate umi
 ```
 
-torch가 자동으로 설치되지 않은 경우 아래를 추가 실행한다:
+torch는 conda yaml의 pip 섹션에 `--extra-index-url`로 지정되어 있으나, 환경에 따라 자동 적용이 안 될 수 있다. 그 경우 아래를 추가 실행한다:
 
 ```bash
 pip install torch==2.11.0+cu128 torchvision==0.26.0+cu128 \
   --index-url https://download.pytorch.org/whl/cu128
+```
+
+> **주의**: 채널 순서(`conda-forge`가 첫 번째)가 중요하다. 순서가 잘못되면 `av=10.0.0` 패키지 설치가 실패한다.
+
+### 설치 확인
+
+```bash
+python -c "import torch; print('torch:', torch.__version__); print('CUDA:', torch.cuda.is_available())"
+python -c "import zarr; print('zarr:', zarr.__version__)"
+python -c "import cv2; print('opencv:', cv2.__version__)"
+python -c "import wandb; print('wandb:', wandb.__version__)"
+```
+
+예상 출력:
+```
+torch: 2.11.0+cu128
+CUDA: True
+zarr: 2.16.1
+opencv: 4.7.0
+wandb: 0.25.1
 ```
 
 ---

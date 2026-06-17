@@ -7,9 +7,8 @@
 ## 목차
 
 1. [사전 요구사항](#1-사전-요구사항)
-2. [umi conda 환경 설치](#2-umi-conda-환경-설치)
-3. [DROID-SLAM 설치](#3-droid-slam-설치)
-4. [SLAM 실행 테스트](#4-slam-실행-테스트)
+2. [DROID-SLAM 설치](#2-droid-slam-설치)
+3. [SLAM 실행 테스트](#3-slam-실행-테스트)
 
 ---
 
@@ -39,45 +38,7 @@ bash Miniforge3-Linux-x86_64.sh
 
 ---
 
-## 2. umi conda 환경 설치
-
-메인 파이프라인 전체(SLAM, zarr 생성, 학습)에서 사용하는 환경이다.
-
-```bash
-conda env create -f conda_environment.yaml -n umi
-conda activate umi
-```
-
-torch는 conda yaml의 pip 섹션에 `--extra-index-url`로 지정되어 있으나, 환경에 따라 자동 적용이 안 될 수 있다. 그 경우 아래를 추가 실행한다:
-
-```bash
-pip install torch==2.11.0+cu128 torchvision==0.26.0+cu128 \
-  --index-url https://download.pytorch.org/whl/cu128
-```
-
-> **주의**: 채널 순서(`conda-forge`가 첫 번째)가 중요하다. 순서가 잘못되면 `av=10.0.0` 패키지 설치가 실패한다.
-
-### 설치 확인
-
-```bash
-python -c "import torch; print('torch:', torch.__version__); print('CUDA:', torch.cuda.is_available())"
-python -c "import zarr; print('zarr:', zarr.__version__)"
-python -c "import cv2; print('opencv:', cv2.__version__)"
-python -c "import wandb; print('wandb:', wandb.__version__)"
-```
-
-예상 출력:
-```
-torch: 2.11.0+cu128
-CUDA: True
-zarr: 2.16.1
-opencv: 4.7.0
-wandb: 0.25.1
-```
-
----
-
-## 3. DROID-SLAM 설치
+## 2. DROID-SLAM 설치
 
 DROID-SLAM은 별도의 `droid` conda 환경에서 실행된다. `run_slam_pipeline_s21.py`가 내부적으로 `conda run -n droid`를 통해 자동 호출하므로, 사용자가 직접 `droid` 환경을 활성화할 필요는 없다.
 
@@ -208,7 +169,7 @@ python -c "import lietorch; print('lietorch: OK')"
 
 ---
 
-## 4. SLAM 실행 테스트
+## 3. SLAM 실행 테스트
 
 `umi` 환경에서 실행한다. `droid` 환경은 자동으로 호출된다.
 
