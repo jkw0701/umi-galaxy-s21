@@ -120,6 +120,23 @@ CUDA available: True
 pip install matplotlib scipy tqdm scikit-learn open3d opencv-python pyquaternion numpy==1.26.4
 ```
 
+> ROS2 관련 경고(`generate-parameter-library-py requires typeguard` 등)가 뜰 수 있으나 무시해도 된다.
+
+### 설치 확인
+
+```bash
+python -c "import numpy; print('numpy:', numpy.__version__)"
+python -c "import cv2; print('opencv:', cv2.__version__)"
+python -c "import open3d; print('open3d:', open3d.__version__)"
+```
+
+예상 출력:
+```
+numpy: 1.26.4
+opencv: 4.11.0.86
+open3d: 0.19.0
+```
+
 ### 3-4. lietorch 빌드
 
 `lietorch`는 CUDA 커널을 직접 컴파일하는 패키지다. **5~10분** 소요된다.
