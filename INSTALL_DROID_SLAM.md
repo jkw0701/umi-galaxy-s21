@@ -133,7 +133,7 @@ python -c "import open3d; print('open3d:', open3d.__version__)"
 예상 출력:
 ```
 numpy: 1.26.4
-opencv: 4.11.0.86
+opencv: 4.11.0
 open3d: 0.19.0
 ```
 
