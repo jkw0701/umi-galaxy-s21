@@ -323,7 +323,26 @@ CUDA_VISIBLE_DEVICES=0 python train.py \
   training.resume=True
 ```
 
-결과물: `ckpt/` 폴더에 `.ckpt` 파일 생성
+결과물: `data/outputs/날짜/시각_train_diffusion_unet_timm_umi/checkpoints/` 에 `.ckpt` 파일 생성
+
+#### 주요 학습 파라미터
+
+전체 설정: [`diffusion_policy/config/train_diffusion_unet_timm_umi_workspace.yaml`](diffusion_policy/config/train_diffusion_unet_timm_umi_workspace.yaml)
+
+| 파라미터 | 값 | 설명 |
+|----------|----|------|
+| `num_epochs` | 91 | 총 학습 횟수 (0~90, epoch=90에서 latest.ckpt 저장) |
+| `batch_size` | 32 | 한 번에 학습하는 데이터 수 |
+| `lr` | 1e-4 | 학습률 (AdamW) |
+| `lr_scheduler` | cosine | 학습률 스케줄러 |
+| `lr_warmup_steps` | 2000 | 학습률을 서서히 올리는 초기 스텝 수 |
+| `weight_decay` | 1e-6 | 과적합 방지 정규화 강도 |
+| `gradient_accumulate_every` | 2 | 그래디언트 누적 횟수 |
+| `checkpoint_every` | 10 | 10에폭마다 체크포인트 저장 |
+| `num_train_timesteps` | 50 | Diffusion 노이즈 스케줄 스텝 수 |
+| `num_inference_steps` | 16 | 추론 시 디노이징 스텝 수 |
+| `input_pertub` | 0.03 | 입력 노이즈 강도 |
+| `obs_encoder` | ViT-B/16 (CLIP) | 이미지 인코더 모델 |
 
 ---
 
