@@ -331,7 +331,7 @@ CUDA_VISIBLE_DEVICES=0 python train.py \
 
 | 파라미터 | 값 | 설명 |
 |----------|----|------|
-| `num_epochs` | 90 | 총 학습 횟수 (10회마다 체크포인트 저장, epoch 90에서 latest.ckpt 저장) |
+| `num_epochs` | 90 | 총 학습 횟수 (epoch 10, 20, ..., 90에서 체크포인트 저장, epoch 90 = latest.ckpt) |
 | `batch_size` | 32 | 한 번에 학습하는 데이터 수 |
 | `lr` | 1e-4 | 학습률 (AdamW) |
 | `lr_scheduler` | cosine | 학습률 스케줄러 |
