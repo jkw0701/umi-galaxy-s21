@@ -139,7 +139,7 @@ open3d: 0.19.0
 
 ### 3-4. lietorch 빌드
 
-`lietorch`는 CUDA 커널을 직접 컴파일하는 패키지다. **5~10분** 소요된다.
+`lietorch`는 CUDA 커널을 직접 컴파일하는 패키지다.
 
 ```bash
 export CUDA_HOME=/usr/local/cuda-12.8
@@ -152,7 +152,7 @@ python setup.py develop   # thirdparty/lietorch
 
 ### 3-5. droid_backends 빌드
 
-DROID-SLAM의 CUDA 백엔드를 빌드한다. **5~10분** 소요된다.
+DROID-SLAM의 CUDA 백엔드를 빌드한다.
 
 ```bash
 cd ~/DROID-SLAM
