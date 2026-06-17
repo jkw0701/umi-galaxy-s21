@@ -345,8 +345,8 @@ class TrainDiffusionUnetImageWorkspace(BaseWorkspace):
                     print(f"{'='*60}\n")
                 # ─────────────────────────────────────────────────────────────────
 
-                # checkpoint
-                if (self.epoch % cfg.training.checkpoint_every) == 0 and accelerator.is_main_process:
+                # checkpoint (self.epoch+1 기준: num_epochs=90이면 90번째 학습 후 저장)
+                if ((self.epoch + 1) % cfg.training.checkpoint_every) == 0 and accelerator.is_main_process:
                     # unwrap the model to save ckpt
                     model_ddp = self.model
                     self.model = accelerator.unwrap_model(self.model)
