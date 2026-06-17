@@ -72,7 +72,7 @@ ema:
   max_value: 0.9999
 
 dataloader:
-  batch_size: 16              # 32 → 16 (데이터 22개에 맞게 축소)
+  batch_size: 32              # 16 → 32 (데이터 22개에서 120개로 다시 증가)
   num_workers: 8
   shuffle: True
   pin_memory: True
@@ -90,7 +90,7 @@ optimizer:
   lr: 1.0e-4                  # 3e-4 → 1e-4 (예측 진동 감소)
   betas: [0.95, 0.999]
   eps: 1.0e-8
-  weight_decay: 1.0e-3        # 1e-6 → 1e-3 (불필요한 출력 억제)
+  weight_decay: 1.0e-6        # 1e-3 → 1e-6 (다시 원상복구)
 
 training:
   device: "cuda:0"
@@ -98,8 +98,8 @@ training:
   debug: False
   resume: True
   lr_scheduler: cosine
-  lr_warmup_steps: 500        # 2000 → 500 (데이터 적으니 빠른 시작)
-  num_epochs: 70              
+  lr_warmup_steps: 2000        # 500 → 2000 (다시 데이터 개수 증가했으므로)
+  num_epochs: 90               # 에폭 사이즈는 90
   gradient_accumulate_every: 2
   use_ema: True
   freeze_encoder: False
