@@ -176,11 +176,11 @@ echo 'export LD_LIBRARY_PATH=/home/$USER/miniforge3/envs/droid/lib/python3.10/si
   > /home/$USER/miniforge3/envs/droid/etc/conda/activate.d/torch_lib.sh
 
 # DROID-SLAM Python 모듈 경로 등록
-echo '/home/$USER/DROID-SLAM/droid_slam' \
+echo "/home/$USER/DROID-SLAM/droid_slam" \
   > /home/$USER/miniforge3/envs/droid/lib/python3.10/site-packages/droid_slam.pth
 ```
 
-> `$USER`는 자동으로 현재 사용자명으로 치환된다. 수동으로 입력할 경우 `kist` 등 실제 사용자명으로 바꾼다.
+> `.pth` 파일은 Python이 직접 읽는 텍스트 파일이므로 `$USER`가 실제 경로로 치환되어야 한다. 작은따옴표(`'`) 대신 큰따옴표(`"`)를 사용한다.
 
 ### 3-8. 모델 가중치 복사
 
