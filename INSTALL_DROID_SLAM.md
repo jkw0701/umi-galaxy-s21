@@ -25,6 +25,23 @@
 | CUDA Toolkit | 12.8 (`/usr/local/cuda-12.8`) |
 | Miniforge | 최신 버전 |
 
+### CUDA Toolkit 12.8 설치
+
+GPU 드라이버가 설치된 상태에서 CUDA Toolkit을 별도로 설치해야 한다. `nvidia-smi`에 표시되는 CUDA 버전은 드라이버 레벨이며, 컴파일에 필요한 `nvcc`는 Toolkit 설치 후에만 사용 가능하다.
+
+```bash
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt-get update
+sudo apt-get install -y cuda-toolkit-12-8
+```
+
+설치 후 확인:
+
+```bash
+/usr/local/cuda-12.8/bin/nvcc --version
+```
+
 ### Miniforge 설치
 
 Anaconda 대신 Miniforge를 권장한다. 패키지 해결 속도가 빠르고 conda-forge 채널을 기본으로 사용한다.
