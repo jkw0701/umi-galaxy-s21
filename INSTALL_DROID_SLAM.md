@@ -22,10 +22,10 @@
 | GPU | NVIDIA RTX 5060 Ti (16GB) |
 | GPU 드라이버 | 595.71 |
 | CUDA (드라이버) | 13.2 |
-| CUDA Toolkit | 12.8 (`/usr/local/cuda-12.8`) |
+| CUDA Toolkit | 12.8 |
 | Miniforge | 최신 버전 |
 
-### CUDA Toolkit 12.8 설치
+### CUDA Toolkit 설치
 
 GPU 드라이버가 설치된 상태에서 CUDA Toolkit을 별도로 설치해야 한다. `nvidia-smi`에 표시되는 CUDA 버전은 드라이버 레벨이며, 컴파일에 필요한 `nvcc`는 Toolkit 설치 후에만 사용 가능하다.
 
@@ -36,11 +36,13 @@ sudo apt-get update
 sudo apt-get install -y cuda-toolkit-12-8
 ```
 
-설치 후 확인:
+설치 확인:
 
 ```bash
-/usr/local/cuda-12.8/bin/nvcc --version
+/usr/local/cuda/bin/nvcc --version
 ```
+
+> 설치 후 `/usr/local/cuda`는 `/usr/local/cuda-12.8`을 가리키는 심볼릭 링크로 자동 생성된다. 설치 스크립트는 이 링크를 통해 CUDA 경로를 자동 감지하므로 버전을 직접 지정할 필요가 없다.
 
 ### Miniforge 설치
 
@@ -59,108 +61,16 @@ bash Miniforge3-Linux-x86_64.sh
 
 DROID-SLAM은 별도의 `droid` conda 환경에서 실행된다. `run_slam_pipeline_s21.py`가 내부적으로 `conda run -n droid`를 통해 자동 호출하므로, 사용자가 직접 `droid` 환경을 활성화할 필요는 없다.
 
-### 3-1. 저장소 클론
+### 2-1. 저장소 클론
 
 ```bash
-cd ~
-git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git
-cd DROID-SLAM
+git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git ~/DROID-SLAM
 ```
 
 > `--recursive` 플래그가 반드시 필요하다. `thirdparty/lietorch` 등 서브모듈이 함께 클론된다.
-> 빠뜨린 경우: `git submodule update --init --recursive`
+> 빠뜨린 경우: `cd ~/DROID-SLAM && git submodule update --init --recursive`
 
-### 3-2. conda 환경 생성 및 torch 설치
-
-```bash
-conda create -n droid python=3.10 -y
-conda activate droid
-pip install torch==2.11.0+cu128 torchvision==0.26.0+cu128 torchaudio==2.11.0+cu128 --index-url https://download.pytorch.org/whl/cu128
-```
-
-> ROS2 관련 경고(`generate-parameter-library-py requires pyyaml` 등)가 뜰 수 있으나 무시해도 된다.
-
-### 설치 확인 (다음 단계 전 반드시 확인)
-
-```bash
-python -c "import torch; print('torch:', torch.__version__); print('CUDA available:', torch.cuda.is_available())"
-```
-
-예상 출력:
-```
-torch: 2.11.0+cu128
-CUDA available: True
-```
-
-### 3-3. 기타 의존성 설치
-
-```bash
-pip install matplotlib scipy tqdm scikit-learn open3d opencv-python pyquaternion numpy==1.26.4
-```
-
-> ROS2 관련 경고(`generate-parameter-library-py requires typeguard` 등)가 뜰 수 있으나 무시해도 된다.
-
-### 설치 확인
-
-```bash
-python -c "import numpy; print('numpy:', numpy.__version__)"
-python -c "import cv2; print('opencv:', cv2.__version__)"
-python -c "import open3d; print('open3d:', open3d.__version__)"
-```
-
-예상 출력:
-```
-numpy: 1.26.4
-opencv: 4.11.0
-open3d: 0.19.0
-```
-
-### 3-4. lietorch 빌드
-
-`lietorch`는 CUDA 커널을 직접 컴파일하는 패키지다.
-
-```bash
-export CUDA_HOME=/usr/local/cuda-12.8
-export PATH=$CUDA_HOME/bin:$PATH
-cd ~/DROID-SLAM/thirdparty/lietorch
-python setup.py develop
-```
-
-> `pip install -e .`는 `ModuleNotFoundError: No module named 'torch'` 오류가 발생할 수 있다. `python setup.py develop`을 사용한다.
-
-### 3-5. droid_backends 빌드
-
-DROID-SLAM의 CUDA 백엔드를 빌드한다.
-
-```bash
-cd ~/DROID-SLAM
-python setup.py install
-```
-
-### 3-6. torch-scatter 설치
-
-```bash
-pip install torch-scatter -f https://data.pyg.org/whl/torch-2.11.0+cu128.html
-```
-
-### 3-7. 영구 환경변수 등록
-
-`libc10.so` 등 torch 공유 라이브러리 경로와 DROID-SLAM Python 모듈 경로를 conda 환경에 영구 등록한다. 이 설정이 없으면 `droid_backends` 임포트 시 오류가 발생한다.
-
-```bash
-# torch 라이브러리 경로 등록 (libc10.so 등)
-mkdir -p /home/$USER/miniforge3/envs/droid/etc/conda/activate.d
-echo 'export LD_LIBRARY_PATH=/home/$USER/miniforge3/envs/droid/lib/python3.10/site-packages/torch/lib:$LD_LIBRARY_PATH' \
-  > /home/$USER/miniforge3/envs/droid/etc/conda/activate.d/torch_lib.sh
-
-# DROID-SLAM Python 모듈 경로 등록
-echo "/home/$USER/DROID-SLAM/droid_slam" \
-  > /home/$USER/miniforge3/envs/droid/lib/python3.10/site-packages/droid_slam.pth
-```
-
-> `.pth` 파일은 Python이 직접 읽는 텍스트 파일이므로 `$USER`가 실제 경로로 치환되어야 한다. 작은따옴표(`'`) 대신 큰따옴표(`"`)를 사용한다.
-
-### 3-8. 모델 가중치 복사
+### 2-2. 모델 가중치 복사
 
 `droid.pth`를 DROID-SLAM 폴더에 복사한다.
 
@@ -168,21 +78,42 @@ echo "/home/$USER/DROID-SLAM/droid_slam" \
 cp /path/to/droid.pth ~/DROID-SLAM/droid.pth
 ```
 
-> 네트워크 차단 환경의 경우 위와 같이 로컬에서 복사한다.
 > 네트워크가 가능한 환경: https://drive.google.com/file/d/1PpqVt1H4maBa_GbPJp4NwxRsd9jk-elh
 
-### 3-9. 설치 최종 확인
+### 2-3. 설치 스크립트 실행
 
-새 터미널을 열어서 확인한다.
+이 리포 루트에서 아래 명령어 하나로 `droid` conda 환경 구성 전체를 자동으로 완료한다.
 
 ```bash
-conda activate droid
-python -c "import droid_backends; print('droid_backends: OK')"
-python -c "from droid import Droid; print('droid: OK')"
-python -c "import lietorch; print('lietorch: OK')"
+bash install_droid_env.sh
 ```
 
-세 개 모두 OK가 출력되면 설치 완료다.
+스크립트가 수행하는 작업:
+
+| 단계 | 내용 |
+|------|------|
+| CUDA 경로 감지 | `/usr/local/cuda` 심볼릭 링크를 통해 자동 감지. `CUDA_HOME` 환경변수가 이미 설정된 경우 그대로 사용 |
+| conda 경로 감지 | `conda info --base`로 자동 감지. 경로 하드코딩 없음 |
+| conda 환경 생성 | `droid` (Python 3.10) |
+| PyTorch 설치 | torch 2.11.0+cu128 |
+| 의존성 설치 | matplotlib, scipy, open3d, opencv 등 |
+| lietorch 빌드 | CUDA 커널 직접 컴파일 (`~/DROID-SLAM/thirdparty/lietorch`) |
+| droid_backends 빌드 | DROID-SLAM CUDA 백엔드 컴파일 (`~/DROID-SLAM`) |
+| torch-scatter 설치 | prebuilt wheel |
+| 환경변수 영구 등록 | torch 라이브러리 경로(`LD_LIBRARY_PATH`), droid_slam 모듈 경로(`.pth`) |
+| 최종 확인 | droid_backends, lietorch, Droid 클래스 임포트 확인 |
+
+완료 시 출력:
+```
+[OK] droid_backends
+[OK] lietorch
+[OK] droid (Droid class importable)
+============================================================
+ DROID-SLAM environment setup complete.
+============================================================
+```
+
+> CUDA 커널 컴파일(`lietorch`, `droid_backends`) 단계는 수 분 소요된다.
 
 ---
 
@@ -247,10 +178,11 @@ Done: N/N succeeded
 
 | 오류 | 원인 | 해결 |
 |------|------|------|
-| `av=10.0.0 is not installable` | conda 채널 순서 문제 | `conda-forge`를 첫 번째 채널로 설정 (`conda-forge` 채널에만 Python 3.10용 빌드가 존재) |
-| `wandb` 임포트 오류 | protobuf 버전 충돌 | `pip install protobuf==4.25.8` |
-| `ModuleNotFoundError: No module named 'torch'` (lietorch 빌드 시) | `pip install -e` 방식 문제 | `python setup.py develop` 사용 |
-| `libc10.so: cannot open shared object file` | torch 라이브러리 경로 미등록 | [3-7 영구 환경변수 등록](#3-7-영구-환경변수-등록) |
-| `ModuleNotFoundError: No module named 'droid'` | DROID-SLAM 모듈 경로 미등록 | [3-7 영구 환경변수 등록](#3-7-영구-환경변수-등록) |
-| `ModuleNotFoundError: No module named 'torch_scatter'` | torch-scatter 미설치 | [3-6 torch-scatter 설치](#3-6-torch-scatter-설치) |
-| `droid.pth not found` | DROID-SLAM 경로 설정 오류 | `~/DROID-SLAM/droid.pth` 위치 확인 |
+| `CUDA not found` | CUDA Toolkit 미설치 또는 `/usr/local/cuda` 심볼릭 링크 없음 | CUDA Toolkit 설치 확인, `ls /usr/local/cuda` |
+| `nvcc not found` | PATH에 nvcc 없음 | `export PATH=/usr/local/cuda/bin:$PATH` 후 재시도 |
+| `CUDA not available` (torch) | GPU 드라이버 또는 CUDA 버전 불일치 | `nvidia-smi`와 torch CUDA 버전 확인 |
+| `ModuleNotFoundError: No module named 'torch'` (lietorch 빌드 시) | `pip install -e` 방식 문제 | 스크립트가 자동으로 `python setup.py develop` 사용 |
+| `libc10.so: cannot open shared object file` | torch 라이브러리 경로 미등록 | 스크립트 재실행 (환경변수 등록 단계 포함) |
+| `ModuleNotFoundError: No module named 'droid'` | droid_slam 모듈 경로 미등록 | 스크립트 재실행 (`.pth` 파일 등록 단계 포함) |
+| `ModuleNotFoundError: No module named 'torch_scatter'` | torch-scatter 미설치 | `conda run -n droid pip install torch-scatter -f https://data.pyg.org/whl/torch-2.11.0+cu128.html` |
+| `droid.pth not found` | 모델 가중치 미복사 | `~/DROID-SLAM/droid.pth` 위치 확인 |
