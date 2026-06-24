@@ -274,3 +274,4 @@ Done: N/N succeeded
 | `ModuleNotFoundError: No module named 'droid'` | droid_slam 모듈 경로 미등록 | `install_droid_env.sh` 재실행 |
 | `ModuleNotFoundError: No module named 'torch_scatter'` | torch-scatter 미설치 | `conda run -n droid pip install torch-scatter -f https://data.pyg.org/whl/torch-2.11.0+cu128.html` |
 | `droid.pth not found` | 모델 가중치 미복사 | `~/DROID-SLAM/droid.pth` 위치 확인 |
+| `ERROR: pip's dependency resolver ... typeguard` | 시스템에 설치된 ROS 패키지(`generate-parameter-library-py`)의 의존성 경고 | 무시해도 된다. `droid` 환경 설치와 무관한 정보성 메시지다 |
