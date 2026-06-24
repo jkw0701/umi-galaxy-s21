@@ -88,7 +88,20 @@ wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge
 bash Miniforge3-Linux-x86_64.sh
 ```
 
-설치 후 터미널을 재시작하거나 `source ~/.bashrc`를 실행한다.
+설치 중 마지막에 아래 질문이 나오면 **반드시 `yes`** 를 입력한다:
+```
+Do you wish to update your shell profile to automatically initialize conda?
+[yes|no]
+>>> yes
+```
+
+이 단계를 건너뛰면 `conda activate`가 작동하지 않아 환경 전환이 되지 않는다.
+
+설치 완료 후 터미널을 **새로 열거나** 아래를 실행한다:
+```bash
+source ~/.bashrc
+conda --version   # 버전이 출력되면 정상
+```
 
 ---
 
