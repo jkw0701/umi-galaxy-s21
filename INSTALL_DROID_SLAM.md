@@ -2,18 +2,22 @@
 
 완전 초기 상태에서 파이프라인 실행까지의 전 과정을 기술한다.
 
+설치 단계는 두 종류로 나뉜다:
+- **수동 설치** — sudo 권한이 필요하거나 시스템 환경에 따라 다르게 처리해야 하는 단계
+- **스크립트 자동화** — `bash install_*.sh` 하나로 완료되는 단계
+
 ---
 
 ## 목차
 
-1. [사전 요구사항](#1-사전-요구사항)
-2. [환경 구성](#2-환경-구성)
+1. [사전 요구사항 (수동)](#1-사전-요구사항-수동)
+2. [환경 구성 (스크립트)](#2-환경-구성-스크립트)
 3. [실행 테스트](#3-실행-테스트)
 4. [트러블슈팅](#트러블슈팅)
 
 ---
 
-## 1. 사전 요구사항
+## 1. 사전 요구사항 (수동)
 
 ### 검증된 환경
 
@@ -27,9 +31,41 @@
 
 > CUDA 커널을 직접 컴파일하는 패키지(`lietorch`, `droid_backends`)가 포함되어 있어 **GPU 드라이버 및 CUDA 버전 조합이 맞아야 한다.** 다른 GPU를 사용할 경우 torch/CUDA 버전을 별도로 맞춰야 할 수 있다.
 
-### CUDA Toolkit 설치
+---
 
-`nvidia-smi`에 표시되는 CUDA 버전은 드라이버 레벨이며, 컴파일에 필요한 `nvcc`는 Toolkit 설치 후에만 사용 가능하다.
+### 1-1. GPU 드라이버 및 CUDA 확인
+
+이미 설치된 환경이 있을 수 있으므로 먼저 현재 상태를 확인한다.
+
+```bash
+nvidia-smi          # GPU 드라이버 및 지원 CUDA 버전 확인
+nvcc --version      # CUDA Toolkit(컴파일러) 설치 여부 확인
+```
+
+`nvidia-smi`는 있지만 `nvcc`가 없는 경우 → CUDA Toolkit이 설치되지 않은 것이다.
+`nvcc`가 있지만 PATH에 없는 경우 → 아래 명령으로 위치를 먼저 찾는다:
+
+```bash
+find /usr/local -name nvcc 2>/dev/null
+find /opt -name nvcc 2>/dev/null
+```
+
+찾은 경로가 예를 들어 `/usr/local/cuda-12.8/bin/nvcc`이면 CUDA_HOME은 `/usr/local/cuda-12.8`이다.
+`install_droid_env.sh`는 이 탐색을 자동으로 수행하므로 직접 지정할 필요는 없지만,
+자동 감지에 실패하는 경우 다음과 같이 명시적으로 지정하고 실행한다:
+
+```bash
+export CUDA_HOME=/path/to/your/cuda
+bash install_droid_env.sh
+```
+
+---
+
+### 1-2. CUDA Toolkit 설치 (미설치 시만)
+
+`nvcc --version`이 작동하면 이 단계를 건너뛴다.
+
+아래는 Ubuntu 22.04 + x86_64 기준이다. 다른 환경은 [CUDA Toolkit 공식 페이지](https://developer.nvidia.com/cuda-downloads)에서 OS/아키텍처에 맞는 명령어를 확인한다.
 
 ```bash
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
@@ -38,14 +74,17 @@ sudo apt-get update
 sudo apt-get install -y cuda-toolkit-12-8
 ```
 
-설치 확인:
+설치 후 확인:
 ```bash
-/usr/local/cuda/bin/nvcc --version
+find /usr/local -name nvcc 2>/dev/null   # nvcc 위치 확인
+nvcc --version                            # PATH에 있으면 바로 실행
 ```
 
-> 설치 후 `/usr/local/cuda`는 `/usr/local/cuda-12.8`을 가리키는 심볼릭 링크로 자동 생성된다.
+---
 
-### Miniforge 설치
+### 1-3. Miniforge 설치 (미설치 시만)
+
+`conda --version`이 작동하면 이 단계를 건너뛴다.
 
 Anaconda 대신 Miniforge를 권장한다. 패키지 해결 속도가 빠르고 conda-forge 채널을 기본으로 사용한다.
 
@@ -58,73 +97,16 @@ bash Miniforge3-Linux-x86_64.sh
 
 ---
 
-## 2. 환경 구성
-
-이 프로젝트는 두 개의 conda 환경을 사용한다.
-
-| 환경 | 용도 |
-|------|------|
-| `umi` | 메인 파이프라인 전체 (데이터 수신, zarr 생성, 학습, 평가) |
-| `droid` | DROID-SLAM 실행 전용 (`run_slam_pipeline_s21.py` 내부에서 자동 호출) |
-
-`run_slam_pipeline_s21.py`는 `umi` 환경에서 실행되며, SLAM 단계에서 내부적으로 `conda run -n droid`를 통해 `droid` 환경을 자동 호출한다. **사용자가 직접 `droid` 환경을 활성화할 필요는 없다.**
-
-> **왜 환경을 두 개로 나누는가**
-> `lietorch`와 `droid_backends`는 CUDA 커널을 직접 컴파일하는 패키지로, 설치 과정이 복잡하고 빌드 환경에 민감하다. 학습 파이프라인 패키지들(`diffusers`, `zarr` 등)과 같은 환경에 혼합하면 의존성 충돌 위험이 있어 SLAM 전용 환경을 별도로 유지한다.
-
-### 2-1. 이 리포지토리 클론
+### 1-4. 이 리포지토리 클론
 
 ```bash
 git clone https://github.com/jkw0701/umi-galaxy-s21.git ~/umi-galaxy-s21
 cd ~/umi-galaxy-s21
 ```
 
-### 2-2. `umi` 환경 설치
+---
 
-**검증된 주요 패키지 버전:**
-
-| 패키지 | 버전 |
-|--------|------|
-| Python | 3.10.13 |
-| torch | 2.11.0+cu128 |
-| torchvision | 0.26.0 |
-| numpy | 1.26.4 |
-| zarr | 2.16.1 |
-| diffusers | 0.18.2 |
-| accelerate | 0.24.1 |
-
-```bash
-conda env create -f conda_environment.yaml -n umi
-conda activate umi
-```
-
-torch는 conda yaml의 pip 섹션에 지정되어 있으나, 환경에 따라 자동 적용이 안 될 수 있다. 그 경우 아래를 추가 실행한다:
-
-```bash
-pip install torch==2.11.0+cu128 torchvision==0.26.0+cu128 \
-  --index-url https://download.pytorch.org/whl/cu128
-```
-
-> **주의**: `conda_environment.yaml`에서 채널 순서(`conda-forge`가 첫 번째)가 중요하다. 순서가 잘못되면 `av=10.0.0` 패키지 설치가 실패한다.
-
-설치 확인:
-```bash
-python -c "import torch; print('torch:', torch.__version__); print('CUDA:', torch.cuda.is_available())"
-python -c "import zarr; print('zarr:', zarr.__version__)"
-python -c "import cv2; print('opencv:', cv2.__version__)"
-python -c "import wandb; print('wandb:', wandb.__version__)"
-```
-
-예상 출력:
-```
-torch: 2.11.0+cu128
-CUDA: True
-zarr: 2.16.1
-opencv: 4.7.0
-wandb: 0.25.1
-```
-
-### 2-3. DROID-SLAM 클론
+### 1-5. DROID-SLAM 클론
 
 ```bash
 git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git ~/DROID-SLAM
@@ -133,7 +115,9 @@ git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git ~/DROID-SLA
 > `--recursive` 플래그가 반드시 필요하다. `thirdparty/lietorch` 등 서브모듈이 함께 클론된다.
 > 빠뜨린 경우: `cd ~/DROID-SLAM && git submodule update --init --recursive`
 
-### 2-4. 모델 가중치 복사
+---
+
+### 1-6. 모델 가중치 복사
 
 ```bash
 cp /path/to/droid.pth ~/DROID-SLAM/droid.pth
@@ -141,11 +125,60 @@ cp /path/to/droid.pth ~/DROID-SLAM/droid.pth
 
 > 네트워크가 가능한 환경: https://drive.google.com/file/d/1PpqVt1H4maBa_GbPJp4NwxRsd9jk-elh
 
-### 2-5. `droid` 환경 설치
+---
 
-이 리포 루트에서 스크립트 하나로 `droid` conda 환경 구성 전체를 자동으로 완료한다.
+## 2. 환경 구성 (스크립트)
+
+이 프로젝트는 두 개의 conda 환경을 사용한다.
+
+| 환경 | 용도 | 설치 스크립트 |
+|------|------|--------------|
+| `umi` | 메인 파이프라인 전체 (데이터 수신, zarr 생성, 학습, 평가) | `install_umi_env.sh` |
+| `droid` | DROID-SLAM 실행 전용 (파이프라인에서 자동 호출) | `install_droid_env.sh` |
+
+`run_slam_pipeline_s21.py`는 `umi` 환경에서 실행되며, SLAM 단계에서 내부적으로 `conda run -n droid`를 통해 `droid` 환경을 자동 호출한다. **사용자가 직접 `droid` 환경을 활성화할 필요는 없다.**
+
+> **왜 환경을 두 개로 나누는가**
+> `lietorch`와 `droid_backends`는 CUDA 커널을 직접 컴파일하는 패키지로, 설치 과정이 복잡하고 빌드 환경에 민감하다. 학습 파이프라인 패키지들(`diffusers`, `zarr` 등)과 같은 환경에 혼합하면 의존성 충돌 위험이 있어 SLAM 전용 환경을 별도로 유지한다.
+
+---
+
+### 2-1. `umi` 환경 설치
 
 ```bash
+cd ~/umi-galaxy-s21
+bash install_umi_env.sh
+```
+
+스크립트가 수행하는 작업:
+
+| 단계 | 내용 |
+|------|------|
+| conda 환경 생성 | `conda_environment.yaml` 기반으로 `umi` 환경 생성 |
+| torch CUDA 확인 | yaml 설치 후 CUDA 사용 가능 여부 자동 확인 |
+| torch 재설치 (필요 시) | CUDA 비활성화 상태면 torch 2.11.0+cu128 재설치 |
+| 최종 확인 | torch, zarr, opencv, wandb, diffusers 임포트 확인 |
+
+완료 시 출력:
+```
+[OK] torch: 2.11.0+cu128
+[OK] zarr: 2.16.1
+[OK] opencv: 4.7.0
+[OK] wandb: ...
+[OK] diffusers: ...
+============================================================
+ umi environment setup complete.
+============================================================
+```
+
+> **주의**: `conda_environment.yaml`에서 채널 순서(`conda-forge`가 첫 번째)가 중요하다. 순서가 잘못되면 `av=10.0.0` 패키지 설치가 실패한다.
+
+---
+
+### 2-2. `droid` 환경 설치
+
+```bash
+cd ~/umi-galaxy-s21
 bash install_droid_env.sh
 ```
 
@@ -153,8 +186,8 @@ bash install_droid_env.sh
 
 | 단계 | 내용 |
 |------|------|
-| CUDA 경로 감지 | `/usr/local/cuda` 심볼릭 링크를 통해 자동 감지. `CUDA_HOME` 환경변수가 이미 설정된 경우 그대로 사용 |
-| conda 경로 감지 | `conda info --base`로 자동 감지. 경로 하드코딩 없음 |
+| CUDA 경로 자동 감지 | `CUDA_HOME` 환경변수 → PATH의 nvcc → `/usr/local/cuda*` 순서로 탐색 |
+| conda 경로 자동 감지 | `conda info --base`로 자동 감지. 경로 하드코딩 없음 |
 | conda 환경 생성 | `droid` (Python 3.10) |
 | PyTorch 설치 | torch 2.11.0+cu128 |
 | 의존성 설치 | matplotlib, scipy, open3d, opencv 등 |
@@ -235,10 +268,9 @@ Done: N/N succeeded
 
 | 오류 | 원인 | 해결 |
 |------|------|------|
-| `CUDA not found` | CUDA Toolkit 미설치 또는 `/usr/local/cuda` 심볼릭 링크 없음 | CUDA Toolkit 설치 확인 |
-| `nvcc not found` | PATH에 nvcc 없음 | `export PATH=/usr/local/cuda/bin:$PATH` 후 재시도 |
+| `CUDA Toolkit not found` | nvcc를 어디서도 찾지 못함 | `find /usr/local -name nvcc`로 위치 확인 후 `export CUDA_HOME=...` 설정 |
 | `CUDA not available` (torch) | GPU 드라이버 또는 CUDA 버전 불일치 | `nvidia-smi`와 torch CUDA 버전 확인 |
-| `av=10.0.0 is not installable` | conda 채널 순서 문제 | `conda-forge`를 첫 번째 채널로 설정 |
+| `av=10.0.0 is not installable` | conda 채널 순서 문제 | `conda_environment.yaml`에서 `conda-forge`가 첫 번째 채널인지 확인 |
 | `wandb` 임포트 오류 | protobuf 버전 충돌 | `pip install protobuf==4.25.8` |
 | `ModuleNotFoundError: No module named 'torch'` (lietorch 빌드 시) | `pip install -e` 방식 문제 | 스크립트가 자동으로 `python setup.py develop` 사용 |
 | `libc10.so: cannot open shared object file` | torch 라이브러리 경로 미등록 | `install_droid_env.sh` 재실행 |
