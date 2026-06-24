@@ -22,17 +22,14 @@ echo "============================================================"
 #   2) nvcc가 PATH에 있는 경우 그 위치에서 역으로 CUDA_HOME 추론
 #   3) /usr/local/cuda* 중 nvcc가 존재하는 디렉토리 탐색
 find_cuda_home() {
-    # 1) 기존 CUDA_HOME
     if [ -n "$CUDA_HOME" ] && [ -x "$CUDA_HOME/bin/nvcc" ]; then
         echo "$CUDA_HOME"; return
     fi
-    # 2) PATH에서 nvcc 탐색
     local nvcc_path
     nvcc_path=$(command -v nvcc 2>/dev/null)
     if [ -n "$nvcc_path" ]; then
         echo "$(dirname "$(dirname "$nvcc_path")")"; return
     fi
-    # 3) /usr/local/cuda* 탐색 (버전 내림차순)
     for d in $(ls -d /usr/local/cuda* 2>/dev/null | sort -rV); do
         if [ -x "$d/bin/nvcc" ]; then
             echo "$d"; return
@@ -114,8 +111,6 @@ echo "==> [5/6] Building droid_backends..."
 conda run -n droid --no-capture-output \
     bash -c "export CUDA_HOME=$CUDA_HOME && export PATH=$CUDA_HOME/bin:\$PATH && \
              cd $DROID_DIR && python setup.py install"
-
-conda run -n droid python -c "import droid_backends; print('[OK] droid_backends')"
 echo ""
 
 # ── 9. torch-scatter 설치 ─────────────────────────────────────────────────
@@ -129,7 +124,7 @@ echo "==> Registering permanent environment variables..."
 
 DROID_ENV_DIR="$CONDA_BASE/envs/droid"
 
-# site-packages 경로를 find로 직접 탐색 (Python 버전 문자열 파싱 불필요)
+# site-packages 경로를 find로 직접 탐색
 SITE_PACKAGES=$(find "$DROID_ENV_DIR/lib" -maxdepth 2 -type d -name "site-packages" | head -1)
 if [ -z "$SITE_PACKAGES" ]; then
     echo "[ERROR] site-packages not found in $DROID_ENV_DIR/lib"
@@ -137,11 +132,13 @@ if [ -z "$SITE_PACKAGES" ]; then
 fi
 echo "[INFO] site-packages: $SITE_PACKAGES"
 
+TORCH_LIB="$SITE_PACKAGES/torch/lib"
+
 # conda activate 시 자동으로 LD_LIBRARY_PATH에 torch 라이브러리 경로 추가
 ACTIVATE_D="$DROID_ENV_DIR/etc/conda/activate.d"
 mkdir -p "$ACTIVATE_D"
 cat > "$ACTIVATE_D/droid_env.sh" << EOF
-export LD_LIBRARY_PATH=$SITE_PACKAGES/torch/lib:\$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$TORCH_LIB:\$LD_LIBRARY_PATH
 EOF
 echo "[OK] LD_LIBRARY_PATH registered: $ACTIVATE_D/droid_env.sh"
 
@@ -152,12 +149,16 @@ echo "[OK] droid_slam.pth registered: $PTH_PATH"
 echo ""
 
 # ── 11. 최종 확인 ─────────────────────────────────────────────────────────
+# conda run은 activate.d 훅을 트리거하지 않으므로 LD_LIBRARY_PATH를 직접 주입
 echo "==> Final verification..."
-conda run -n droid python -c "
+conda run -n droid \
+    bash -c "export LD_LIBRARY_PATH=$TORCH_LIB:\$LD_LIBRARY_PATH && \
+             export PYTHONPATH=$DROID_DIR/droid_slam:\$PYTHONPATH && \
+             python -c \"
 import droid_backends; print('[OK] droid_backends')
 import lietorch;       print('[OK] lietorch')
 from droid import Droid; print('[OK] droid (Droid class importable)')
-"
+\""
 
 echo ""
 echo "============================================================"
