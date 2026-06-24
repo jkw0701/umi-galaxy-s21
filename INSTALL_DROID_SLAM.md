@@ -35,22 +35,16 @@
 
 ### 1-1. GPU 드라이버 및 CUDA 확인
 
-이미 설치된 환경이 있을 수 있으므로 먼저 현재 상태를 확인한다.
-
 ```bash
-nvidia-smi          # GPU 드라이버 및 지원 CUDA 버전 확인
-nvcc --version      # CUDA Toolkit(컴파일러) 설치 여부 확인
-```
-
-`nvidia-smi`는 있지만 `nvcc`가 없는 경우 → CUDA Toolkit이 설치되지 않은 것이다.
-`nvcc --version`이 "명령어를 찾을 수 없습니다" 오류가 나는 경우 → nvcc가 설치는 됐지만 PATH에 없는 것이다. 아래 명령으로 위치를 확인한다:
-
-```bash
-find /usr/local -name nvcc 2>/dev/null
+nvidia-smi                               # GPU 드라이버 및 지원 CUDA 버전 확인
+find /usr/local -name nvcc 2>/dev/null   # CUDA Toolkit(컴파일러) 설치 여부 확인
 find /opt -name nvcc 2>/dev/null
 ```
 
-`install_droid_env.sh`가 이 탐색을 자동으로 수행하므로 **별도 조치 없이 스크립트를 실행하면 된다.**
+- `nvidia-smi`가 없는 경우 → GPU 드라이버가 설치되지 않은 것이다. 드라이버를 먼저 설치한다.
+- `find` 결과가 없는 경우 → CUDA Toolkit이 설치되지 않은 것이다. 1-2로 이동한다.
+- `find` 결과가 있는 경우 → 설치 완료. **`install_droid_env.sh`가 이 경로를 자동으로 찾아서 사용하므로 그대로 다음 단계로 넘어간다.**
+
 자동 감지에 실패하는 경우에만 다음과 같이 명시적으로 지정하고 실행한다:
 
 ```bash
@@ -62,7 +56,7 @@ bash install_droid_env.sh
 
 ### 1-2. CUDA Toolkit 설치 (미설치 시만)
 
-`nvcc --version`이 작동하면 이 단계를 건너뛴다.
+`find /usr/local -name nvcc` 결과가 있으면 이 단계를 건너뛴다.
 
 아래는 Ubuntu 22.04 + x86_64 기준이다. 다른 환경은 [CUDA Toolkit 공식 페이지](https://developer.nvidia.com/cuda-downloads)에서 OS/아키텍처에 맞는 명령어를 확인한다.
 
@@ -75,8 +69,7 @@ sudo apt-get install -y cuda-toolkit-12-8
 
 설치 후 확인:
 ```bash
-find /usr/local -name nvcc 2>/dev/null   # nvcc 위치 확인
-nvcc --version                            # PATH에 있으면 바로 실행
+find /usr/local -name nvcc 2>/dev/null   # 경로가 출력되면 설치 완료
 ```
 
 ---
