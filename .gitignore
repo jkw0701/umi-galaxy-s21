@@ -11,6 +11,7 @@ build/
 *.zarr.zip
 *.ckpt
 *.pth
+!droid.pth
 wandb/
 eval_data/
 data/
