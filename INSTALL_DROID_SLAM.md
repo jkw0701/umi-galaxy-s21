@@ -43,19 +43,18 @@ nvcc --version      # CUDA Toolkit(컴파일러) 설치 여부 확인
 ```
 
 `nvidia-smi`는 있지만 `nvcc`가 없는 경우 → CUDA Toolkit이 설치되지 않은 것이다.
-`nvcc`가 있지만 PATH에 없는 경우 → 아래 명령으로 위치를 먼저 찾는다:
+`nvcc --version`이 "명령어를 찾을 수 없습니다" 오류가 나는 경우 → nvcc가 설치는 됐지만 PATH에 없는 것이다. 아래 명령으로 위치를 확인한다:
 
 ```bash
 find /usr/local -name nvcc 2>/dev/null
 find /opt -name nvcc 2>/dev/null
 ```
 
-찾은 경로가 예를 들어 `/usr/local/cuda-12.8/bin/nvcc`이면 CUDA_HOME은 `/usr/local/cuda-12.8`이다.
-`install_droid_env.sh`는 이 탐색을 자동으로 수행하므로 직접 지정할 필요는 없지만,
-자동 감지에 실패하는 경우 다음과 같이 명시적으로 지정하고 실행한다:
+`install_droid_env.sh`가 이 탐색을 자동으로 수행하므로 **별도 조치 없이 스크립트를 실행하면 된다.**
+자동 감지에 실패하는 경우에만 다음과 같이 명시적으로 지정하고 실행한다:
 
 ```bash
-export CUDA_HOME=/path/to/your/cuda
+export CUDA_HOME=/usr/local/cuda-12.8   # find 결과로 확인한 경로
 bash install_droid_env.sh
 ```
 
