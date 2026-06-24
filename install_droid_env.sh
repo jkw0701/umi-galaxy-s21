@@ -129,16 +129,21 @@ echo "==> Registering permanent environment variables..."
 
 DROID_ENV_DIR="$CONDA_BASE/envs/droid"
 
+# droid 환경의 실제 Python 버전 동적 감지 (python3.10 하드코딩 방지)
+PYTHON_VER=$(conda run -n droid python -c "import sys; print(f'python{sys.version_info.major}.{sys.version_info.minor}')")
+SITE_PACKAGES="$DROID_ENV_DIR/lib/$PYTHON_VER/site-packages"
+echo "[INFO] Python: $PYTHON_VER, site-packages: $SITE_PACKAGES"
+
 # conda activate 시 자동으로 LD_LIBRARY_PATH에 torch 라이브러리 경로 추가
 ACTIVATE_D="$DROID_ENV_DIR/etc/conda/activate.d"
 mkdir -p "$ACTIVATE_D"
 cat > "$ACTIVATE_D/droid_env.sh" << EOF
-export LD_LIBRARY_PATH=$DROID_ENV_DIR/lib/python3.10/site-packages/torch/lib:\$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$SITE_PACKAGES/torch/lib:\$LD_LIBRARY_PATH
 EOF
 echo "[OK] LD_LIBRARY_PATH registered: $ACTIVATE_D/droid_env.sh"
 
 # Python이 droid_slam 모듈을 찾을 수 있도록 .pth 파일 등록
-PTH_PATH="$DROID_ENV_DIR/lib/python3.10/site-packages/droid_slam.pth"
+PTH_PATH="$SITE_PACKAGES/droid_slam.pth"
 echo "$DROID_DIR/droid_slam" > "$PTH_PATH"
 echo "[OK] droid_slam.pth registered: $PTH_PATH"
 echo ""

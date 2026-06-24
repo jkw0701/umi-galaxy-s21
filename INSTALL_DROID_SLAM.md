@@ -45,15 +45,14 @@ find /opt -name nvcc 2>/dev/null
 - `find` 결과가 없는 경우 → CUDA Toolkit이 설치되지 않은 것이다. 1-2로 이동한다.
 - `find` 결과가 있는 경우 → 설치 완료. **`install_droid_env.sh`가 이 경로를 자동으로 찾아서 사용하므로 그대로 다음 단계로 넘어간다.**
 
-자동 감지에 실패하는 경우에만 `find` 결과 경로를 직접 지정한다:
+자동 감지에 실패하는 경우에만 `find` 결과 경로에서 `bin/nvcc`를 제외한 부분을 `CUDA_HOME`으로 지정한다:
 
 ```bash
-# 예: find 결과가 /usr/local/cuda-12.8/bin/nvcc 인 경우
-export CUDA_HOME=/usr/local/cuda-12.8
+# find 결과 예시:  /usr/local/cuda-12.8/bin/nvcc
+#                  ^^^^^^^^^^^^^^^^^^^^^^^^ 이 부분이 CUDA_HOME
+export CUDA_HOME=$(dirname $(dirname $(find /usr/local /opt -name nvcc 2>/dev/null | head -1)))
 bash install_droid_env.sh
 ```
-
-`cuda-12.8` 부분은 본인 환경의 `find` 결과에 맞게 바꾼다 (예: `cuda-11.8`, `cuda-12.3` 등).
 
 ---
 
