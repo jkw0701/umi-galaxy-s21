@@ -129,10 +129,13 @@ echo "==> Registering permanent environment variables..."
 
 DROID_ENV_DIR="$CONDA_BASE/envs/droid"
 
-# droid 환경의 실제 Python 버전 동적 감지 (python3.10 하드코딩 방지)
-PYTHON_VER=$(conda run -n droid python -c "import sys; print(f'python{sys.version_info.major}.{sys.version_info.minor}')")
-SITE_PACKAGES="$DROID_ENV_DIR/lib/$PYTHON_VER/site-packages"
-echo "[INFO] Python: $PYTHON_VER, site-packages: $SITE_PACKAGES"
+# site-packages 경로를 find로 직접 탐색 (Python 버전 문자열 파싱 불필요)
+SITE_PACKAGES=$(find "$DROID_ENV_DIR/lib" -maxdepth 2 -type d -name "site-packages" | head -1)
+if [ -z "$SITE_PACKAGES" ]; then
+    echo "[ERROR] site-packages not found in $DROID_ENV_DIR/lib"
+    exit 1
+fi
+echo "[INFO] site-packages: $SITE_PACKAGES"
 
 # conda activate 시 자동으로 LD_LIBRARY_PATH에 torch 라이브러리 경로 추가
 ACTIVATE_D="$DROID_ENV_DIR/etc/conda/activate.d"
