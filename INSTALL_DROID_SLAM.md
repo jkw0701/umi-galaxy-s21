@@ -33,26 +33,27 @@
 
 ---
 
-### 1-1. GPU 드라이버 및 CUDA 확인
+### 1-1. GPU 드라이버 및 CUDA Toolkit 확인
+
+아래 두 명령을 실행한다.
 
 ```bash
-nvidia-smi                               # GPU 드라이버 및 지원 CUDA 버전 확인
-find /usr/local -name nvcc 2>/dev/null   # CUDA Toolkit(컴파일러) 설치 여부 확인
-find /opt -name nvcc 2>/dev/null
+nvidia-smi
+find /usr/local /opt -name nvcc 2>/dev/null
 ```
 
-- `nvidia-smi`가 없는 경우 → GPU 드라이버가 설치되지 않은 것이다. 드라이버를 먼저 설치한다.
-- `find` 결과가 없는 경우 → CUDA Toolkit이 설치되지 않은 것이다. 1-2로 이동한다.
-- `find` 결과가 있는 경우 → 설치 완료. **`install_droid_env.sh`가 이 경로를 자동으로 찾아서 사용하므로 그대로 다음 단계로 넘어간다.**
+결과에 따라 다음 중 해당하는 경우로 이동한다:
 
-자동 감지에 실패하는 경우에만 `find` 결과 경로에서 `bin/nvcc`를 제외한 부분을 `CUDA_HOME`으로 지정한다:
+**경우 A — `nvidia-smi`가 실행되지 않는 경우**
+GPU 드라이버가 없다. 드라이버를 별도로 설치한 후 다시 시작한다.
 
-```bash
-# find 결과 예시:  /usr/local/cuda-12.8/bin/nvcc
-#                  ^^^^^^^^^^^^^^^^^^^^^^^^ 이 부분이 CUDA_HOME
-export CUDA_HOME=$(dirname $(dirname $(find /usr/local /opt -name nvcc 2>/dev/null | head -1)))
-bash install_droid_env.sh
-```
+**경우 B — `nvidia-smi`는 되지만 `find` 결과가 비어있는 경우**
+CUDA Toolkit이 없다. → **1-2로 이동**
+
+**경우 C — `find` 결과에 경로가 출력되는 경우** (예: `/usr/local/cuda-12.8/bin/nvcc`)
+CUDA Toolkit 설치 완료. → **1-2를 건너뛰고 1-3으로 이동**
+
+> `install_droid_env.sh`가 `find`와 동일한 방식으로 nvcc 경로를 자동 탐색하므로 별도 설정 없이 스크립트를 실행하면 된다.
 
 ---
 
