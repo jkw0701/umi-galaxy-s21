@@ -57,18 +57,18 @@ bash Miniforge3-Linux-x86_64.sh
 
 #### 왜 환경을 두 개로 나누는가
 
-두 환경은 요구하는 PyTorch 버전이 달라서 하나로 합칠 수 없다.
+두 환경은 설치하는 패키지의 성격이 달라서 분리한다.
 
 > **CUDA와 PyTorch의 관계**
 > CUDA는 NVIDIA GPU를 제어하는 하드웨어 레벨 드라이버+컴파일러이고, PyTorch는 그 위에서 동작하는 딥러닝 라이브러리다. PyTorch는 항상 특정 CUDA 버전에 맞춰 빌드된다(`torch==2.11.0+cu128` = PyTorch 2.11.0, CUDA 12.8용). 둘은 계층이 달라 하나만 쓰는 것은 불가능하다.
 
 | | `umi` | `droid` |
 |---|---|---|
-| Python | 3.9 | 3.10 |
-| PyTorch | 2.8.0+cu128 | **2.11.0+cu128** |
+| Python | 3.10 | 3.10 |
+| PyTorch | 2.11.0+cu128 | 2.11.0+cu128 |
 | 핵심 패키지 | zarr, diffusers, hydra, av, accelerate | **lietorch, droid_backends** |
 
-`lietorch`와 `droid_backends`는 CUDA 커널을 컴파일할 때 사용한 PyTorch 버전에 완전히 고정된다. 즉, PyTorch 2.11.0으로 컴파일하면 2.11.0에서만 동작하고, 다른 버전에서 임포트하면 즉시 오류가 난다. `umi` 환경의 학습 파이프라인(diffusers 등)은 별도의 PyTorch 버전을 요구하므로 두 환경을 분리하는 것이 가장 안전하다.
+`lietorch`와 `droid_backends`는 CUDA 커널을 직접 컴파일하는 패키지로, 설치 과정이 복잡하고 빌드 환경에 민감하다. 학습 파이프라인 패키지들(`diffusers`, `zarr` 등)과 같은 환경에 혼합하면 의존성 충돌 위험이 있어 SLAM 전용 환경을 별도로 유지한다.
 
 ---
 
