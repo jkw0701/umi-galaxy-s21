@@ -8,7 +8,7 @@
 
 ## 목차
 
-- [실행 환경 및 설치](#실행-환경-및-설치)
+- [설치](#설치) — [INSTALL_DROID_SLAM.md](INSTALL_DROID_SLAM.md) 참조
 1. [프로젝트 개요](#1-프로젝트-개요)
 2. [파이프라인 전체 흐름](#2-파이프라인-전체-흐름)
 3. [작업 — 다중 오브젝트 분류 배치](#3-작업--다중-오브젝트-분류-배치)
@@ -16,133 +16,9 @@
 
 ---
 
-## 실행 환경 및 설치
+## 설치
 
-### 검증된 환경
-
-| 항목 | 버전 |
-|------|------|
-| GPU | NVIDIA RTX 5060 Ti (16GB) |
-| GPU 드라이버 | 595.71 |
-| CUDA (드라이버) | 13.2 |
-| OS | Ubuntu (Linux) |
-
-> CUDA 커널을 직접 컴파일하는 패키지(`lietorch`, `droid_backends`)가 포함되어 있어 **GPU 드라이버 및 CUDA 버전 조합이 맞아야 한다.** 위 환경에서 검증된 버전 조합이므로, 다른 GPU를 사용할 경우 torch/CUDA 버전을 별도로 맞춰야 할 수 있다.
-
----
-
-### Miniforge 설치
-
-Anaconda 대신 Miniforge를 권장한다. 패키지 해결 속도가 빠르고 conda-forge 채널을 기본으로 사용한다.
-
-```bash
-wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
-bash Miniforge3-Linux-x86_64.sh
-```
-
-설치 후 터미널을 재시작하거나 `source ~/.bashrc`를 실행한다.
-
----
-
-### conda 환경 구성
-
-이 프로젝트는 두 개의 conda 환경을 사용한다. **아래 순서대로 설치**한다.
-
-| 순서 | 환경 이름 | 용도 |
-|------|-----------|------|
-| 1 | `umi` | 메인 파이프라인 전체 (데이터 수신, zarr 생성, 학습, 평가) |
-| 2 | `droid` | DROID-SLAM 실행 전용 (`run_slam_pipeline_s21.py` 내부에서 자동 호출) |
-
-`run_slam_pipeline_s21.py`는 `umi` 환경에서 실행되며, SLAM 단계에서 내부적으로 `conda run -n droid`를 통해 `droid` 환경을 자동으로 호출한다. 사용자가 직접 `droid` 환경을 활성화할 필요는 없다.
-
-#### 왜 환경을 두 개로 나누는가
-
-두 환경은 설치하는 패키지의 성격이 달라서 분리한다.
-
-> **CUDA와 PyTorch의 관계**
-> CUDA는 NVIDIA GPU를 제어하는 하드웨어 레벨 드라이버+컴파일러이고, PyTorch는 그 위에서 동작하는 딥러닝 라이브러리다. PyTorch는 항상 특정 CUDA 버전에 맞춰 빌드된다(`torch==2.11.0+cu128` = PyTorch 2.11.0, CUDA 12.8용). 둘은 계층이 달라 하나만 쓰는 것은 불가능하다.
-
-| | `umi` | `droid` |
-|---|---|---|
-| Python | 3.10 | 3.10 |
-| PyTorch | 2.11.0+cu128 | 2.11.0+cu128 |
-| 핵심 패키지 | zarr, diffusers, hydra, av, accelerate | **lietorch, droid_backends** |
-
-`lietorch`와 `droid_backends`는 CUDA 커널을 직접 컴파일하는 패키지로, 설치 과정이 복잡하고 빌드 환경에 민감하다. 학습 파이프라인 패키지들(`diffusers`, `zarr` 등)과 같은 환경에 혼합하면 의존성 충돌 위험이 있어 SLAM 전용 환경을 별도로 유지한다.
-
----
-
-### 환경 1: `umi` 설치
-
-**검증된 주요 패키지 버전:**
-
-| 패키지 | 버전 |
-|--------|------|
-| Python | 3.10.13 |
-| torch | 2.11.0 (CUDA 12.8) |
-| torchvision | 0.26.0 |
-| numpy | 1.26.4 |
-| scipy | 1.13.1 |
-| zarr | 2.16.1 |
-| opencv-python | 4.7.0 |
-| av | 10.0.0 |
-| hydra-core | 1.2.0 |
-| timm | 0.9.7 |
-| diffusers | 0.18.2 |
-| einops | 0.6.1 |
-| accelerate | 0.24.1 |
-| wandb | 0.25.1 |
-
-> GPU 아키텍처별 torch 지원 범위: `sm_75` (RTX 20xx) ~ `sm_120` (RTX 50xx). RTX 20xx 이상이면 GPU 학습이 가능하다.
-
-```bash
-conda env create -f conda_environment.yaml -n umi
-conda activate umi
-```
-
-torch는 conda yaml의 pip 섹션에 `--extra-index-url`로 지정되어 있으나, 환경에 따라 자동 적용이 안 될 수 있다. 그 경우 아래를 추가 실행한다:
-
-```bash
-pip install torch==2.11.0+cu128 torchvision==0.26.0+cu128 \
-  --index-url https://download.pytorch.org/whl/cu128
-```
-
-> **주의**: 채널 순서(`conda-forge`가 첫 번째)가 중요하다. 순서가 잘못되면 `av=10.0.0` 패키지 설치가 실패한다.
-
-### 설치 확인
-
-```bash
-python -c "import torch; print('torch:', torch.__version__); print('CUDA:', torch.cuda.is_available())"
-python -c "import zarr; print('zarr:', zarr.__version__)"
-python -c "import cv2; print('opencv:', cv2.__version__)"
-python -c "import wandb; print('wandb:', wandb.__version__)"
-```
-
-예상 출력:
-```
-torch: 2.11.0+cu128
-CUDA: True
-zarr: 2.16.1
-opencv: 4.7.0
-wandb: 0.25.1
-```
-
----
-
-### 환경 2: `droid` 설치 (DROID-SLAM 전용)
-
-**검증된 주요 패키지 버전:**
-
-| 패키지 | 버전 |
-|--------|------|
-| Python | 3.10.20 |
-| torch | 2.11.0+cu128 |
-| CUDA | 12.8 |
-| lietorch | 0.2 |
-
-`lietorch`와 `droid_backends`는 CUDA 커널을 직접 컴파일하므로 **torch 및 CUDA 버전이 정확히 일치해야 한다.** 설치 과정이 복잡하므로 상세 가이드를 참조한다.
-
-> **➜ [INSTALL_DROID_SLAM.md](INSTALL_DROID_SLAM.md)** — 초기 상태에서 SLAM 실행까지의 전 과정, 발생 가능한 오류 및 해결 방법 포함
+> **➜ [INSTALL_DROID_SLAM.md](INSTALL_DROID_SLAM.md)** — CUDA Toolkit, Miniforge, `umi`/`droid` conda 환경 구성, 실행 테스트, 트러블슈팅 전 과정 포함
 
 ---
 
