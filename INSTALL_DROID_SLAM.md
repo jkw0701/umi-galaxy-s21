@@ -119,11 +119,13 @@ git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git ~/DROID-SLA
 
 ### 1-6. 모델 가중치 복사
 
-```bash
-cp /path/to/droid.pth ~/DROID-SLAM/droid.pth
-```
+`droid.pth`는 이 리포지토리에 포함되어 있다 (Git LFS로 관리). `git clone` 시 자동으로 다운로드된다.
 
-> 네트워크가 가능한 환경: https://drive.google.com/file/d/1PpqVt1H4maBa_GbPJp4NwxRsd9jk-elh
+DROID-SLAM 실행 시 `~/DROID-SLAM/droid.pth` 경로를 참조하므로, clone 후 한 번만 복사한다:
+
+```bash
+cp ~/umi-galaxy-s21/droid.pth ~/DROID-SLAM/droid.pth
+```
 
 ---
 
