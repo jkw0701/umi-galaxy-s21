@@ -59,7 +59,7 @@ CUDA Toolkit 설치 완료. → **1-2를 건너뛰고 1-3으로 이동**
 
 ### 1-2. CUDA Toolkit 설치 (미설치 시만)
 
-`find /usr/local -name nvcc` 결과가 있으면 이 단계를 건너뛴다.
+`find /usr/local /opt -name nvcc 2>/dev/null` 결과가 있으면 이 단계를 건너뛴다.
 
 아래는 Ubuntu 22.04 + x86_64 기준이다. 다른 환경은 [CUDA Toolkit 공식 페이지](https://developer.nvidia.com/cuda-downloads)에서 OS/아키텍처에 맞는 명령어를 확인한다.
 
@@ -72,7 +72,7 @@ sudo apt-get install -y cuda-toolkit-12-8
 
 설치 후 확인:
 ```bash
-find /usr/local -name nvcc 2>/dev/null   # 경로가 출력되면 설치 완료
+find /usr/local /opt -name nvcc 2>/dev/null   # 경로가 출력되면 설치 완료
 ```
 
 ---
