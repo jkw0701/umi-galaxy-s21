@@ -8,7 +8,7 @@
 
 ## 목차
 
-- [설치](#설치) — [INSTALL_DROID_SLAM.md](INSTALL_DROID_SLAM.md) 참조
+- [설치](#설치) — [INSTALL_UNIFIED.md](INSTALL_UNIFIED.md) 참조
 1. [프로젝트 개요](#1-프로젝트-개요)
 2. [파이프라인 전체 흐름](#2-파이프라인-전체-흐름)
 3. [작업 — 다중 오브젝트 분류 배치](#3-작업--다중-오브젝트-분류-배치)
@@ -18,7 +18,7 @@
 
 ## 설치
 
-> **➜ [INSTALL_DROID_SLAM.md](INSTALL_DROID_SLAM.md)** — CUDA Toolkit, Miniforge, `umi`/`droid` conda 환경 구성, 실행 테스트, 트러블슈팅 전 과정 포함
+> **➜ [INSTALL_UNIFIED.md](INSTALL_UNIFIED.md)** — CUDA Toolkit, Miniforge, `umi_full` conda 환경 구성, 실행 테스트, 트러블슈팅 전 과정 포함
 
 ---
 
@@ -147,7 +147,7 @@ python run_slam_pipeline_s21.py process-droid \
 | 파일 | 역할 |
 |------|------|
 | `droid_slam_s21/00_process_videos.py` | 세션 폴더의 영상 파일을 `demos/` 구조로 정리 |
-| `droid_slam_s21/03_batch_slam.py` | 각 데모 영상에서 프레임 추출 → DROID-SLAM 실행 → `camera_trajectory.csv` 생성. `droid` conda 환경을 자동 호출 |
+| `droid_slam_s21/03_batch_slam.py` | 각 데모 영상에서 프레임 추출 → DROID-SLAM 실행 → `camera_trajectory.csv` 생성. `umi_full` conda 환경을 자동 호출 |
 | `droid_slam_s21/04_detect_aruco.py` | 영상에서 ArUco 마커를 검출해 `tag_detection.pkl` 생성. 좌표 기준점 설정에 사용 |
 | `droid_slam_s21/05_run_calibrations_per_episode.py` | SLAM 궤적과 ArUco 태그 좌표를 결합해 그리퍼 캘리브레이션 및 `tx_slam_tag.json` 생성. 에피소드별로 독립적으로 수행 |
 | `droid_slam_s21/06_generate_dataset_plan.py` | 전체 처리 결과를 종합해 `dataset_plan.pkl` 생성. 다음 단계(Step 2)의 입력 파일 |

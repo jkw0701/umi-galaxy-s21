@@ -92,6 +92,8 @@ git clone https://github.com/jkw0701/umi-galaxy-s21.git ~/umi-galaxy-s21
 cd ~/umi-galaxy-s21
 ```
 
+> **주의**: `install_umi_full_env.sh`가 `~/umi-galaxy-s21` 경로를 참조한다. 다른 경로에 클론하면 스크립트가 실패한다.
+
 ---
 
 ### 1-5. DROID-SLAM 클론
@@ -99,6 +101,8 @@ cd ~/umi-galaxy-s21
 ```bash
 git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git ~/DROID-SLAM
 ```
+
+> **주의**: `install_umi_full_env.sh`가 `~/DROID-SLAM` 경로를 참조한다. 다른 경로에 클론하면 스크립트가 실패한다.
 
 `--recursive` 플래그가 반드시 필요하다. 빠뜨린 경우:
 ```bash

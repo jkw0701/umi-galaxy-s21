@@ -102,7 +102,9 @@ echo ""
 echo "==> [4/8] Building lietorch (CUDA kernel compile — a few minutes)..."
 conda run -n umi_full --no-capture-output \
     bash -c "export CUDA_HOME=$CUDA_HOME && export PATH=$CUDA_HOME/bin:\$PATH && \
-             cd $DROID_DIR/thirdparty/lietorch && python setup.py develop"
+             cd $DROID_DIR/thirdparty/lietorch && \
+             python setup.py build_ext --inplace && \
+             pip install -e . --no-build-isolation"
 
 conda run -n umi_full python -c "import lietorch; print('[OK] lietorch')"
 echo ""
@@ -111,7 +113,8 @@ echo ""
 echo "==> [5/8] Building droid_backends..."
 conda run -n umi_full --no-capture-output \
     bash -c "export CUDA_HOME=$CUDA_HOME && export PATH=$CUDA_HOME/bin:\$PATH && \
-             cd $DROID_DIR && python setup.py install"
+             cd $DROID_DIR && python setup.py install --no-build-isolation 2>/dev/null || \
+             pip install . --no-build-isolation"
 echo ""
 
 # ── 10. torch-scatter 설치 ────────────────────────────────────────────────
