@@ -39,13 +39,15 @@ find /usr/local /opt -name nvcc 2>/dev/null
 
 - **경우 A** — `nvidia-smi`가 실행되지 않는 경우: GPU 드라이버 없음. 별도 설치 필요.
 - **경우 B** — `nvidia-smi`는 되지만 `find` 결과가 비어있는 경우: CUDA Toolkit 없음. → **1-2로 이동**
-- **경우 C** — `find` 결과에 경로가 출력되는 경우 (예: `/usr/local/cuda-12.8/bin/nvcc`): → **1-2 건너뛰고 1-3으로 이동**
+- **경우 C** — `find` 결과에 `/usr/local/cuda-12.8/bin/nvcc` 경로가 출력되는 경우: → **1-2 건너뛰고 1-3으로 이동**
+- **경우 D** — `find` 결과에 경로가 출력되지만 12.8이 아닌 다른 버전인 경우: 기존 버전은 그대로 두고 12.8을 추가 설치한다. → **1-2로 이동**
 
 ---
 
-### 1-2. CUDA Toolkit 설치 (미설치 시만)
+### 1-2. CUDA Toolkit 12.8 설치 (경우 B 또는 D)
 
-Ubuntu 22.04 + x86_64 기준. 다른 환경은 [CUDA Toolkit 공식 페이지](https://developer.nvidia.com/cuda-downloads)를 참고한다.
+Ubuntu 22.04 + x86_64 기준. 다른 환경은 [CUDA Toolkit 공식 페이지](https://developer.nvidia.com/cuda-downloads)를 참고한다.  
+기존에 다른 버전이 설치되어 있어도 덮어쓰지 않고 12.8이 추가 설치된다.
 
 ```bash
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
