@@ -20,12 +20,13 @@ echo "============================================================"
 
 # ── 1. CUDA 경로 자동 감지 ────────────────────────────────────────────────
 find_cuda_home() {
-    # 1) 명시적으로 CUDA_HOME이 설정된 경우 우선 사용
+    # 1) 명시적으로 CUDA_HOME이 설정된 경우 우선 사용 (심링크도 실제 경로로 resolve)
     if [ -n "$CUDA_HOME" ] && [ -x "$CUDA_HOME/bin/nvcc" ]; then
-        echo "$CUDA_HOME"; return
+        readlink -f "$CUDA_HOME" 2>/dev/null || echo "$CUDA_HOME"; return
     fi
-    # 2) /usr/local/cuda* 중 가장 높은 버전 탐색 (/usr/bin/nvcc 같은 시스템 패키지보다 우선)
-    for d in $(ls -d /usr/local/cuda* 2>/dev/null | sort -rV); do
+    # 2) /usr/local/cuda-X.Y 형태의 실제 디렉토리만 탐색 (심링크 제외), 가장 높은 버전 우선
+    #    심링크(cuda, cuda-12 등)는 건너뜀 → 버전 비교가 명확한 실제 경로만 사용
+    for d in $(ls -d /usr/local/cuda-[0-9]* 2>/dev/null | sort -rV); do
         if [ -x "$d/bin/nvcc" ]; then
             echo "$d"; return
         fi
@@ -34,10 +35,20 @@ find_cuda_home() {
     local nvcc_path
     nvcc_path=$(command -v nvcc 2>/dev/null)
     if [ -n "$nvcc_path" ] && [[ "$nvcc_path" != /usr/bin/* ]]; then
-        echo "$(dirname "$(dirname "$nvcc_path")")"; return
+        readlink -f "$(dirname "$(dirname "$nvcc_path")")" 2>/dev/null || \
+            echo "$(dirname "$(dirname "$nvcc_path")")"; return
+    fi
+    # 4) 마지막 수단: find로 전체 탐색
+    local found
+    found=$(find /usr/local /opt -name nvcc -not -path "/usr/bin/*" 2>/dev/null | head -1)
+    if [ -n "$found" ]; then
+        echo "$(dirname "$(dirname "$found")")"; return
     fi
     echo ""
 }
+
+# PATH에서 /usr/bin을 제거하여 시스템 nvcc(11.5 등)가 우선되는 것을 방지
+export PATH=$(echo "$PATH" | tr ':' '\n' | grep -v '^/usr/bin$' | tr '\n' ':' | sed 's/:$//')
 
 CUDA_HOME=$(find_cuda_home)
 if [ -z "$CUDA_HOME" ]; then
