@@ -8,8 +8,8 @@
 # 사전 요구사항:
 #   - CUDA Toolkit 설치 완료 (nvcc 사용 가능)
 #   - Miniforge(또는 Anaconda) 설치
-#   - DROID-SLAM 클론 완료: ~/DROID-SLAM
-#   - umi-galaxy-s21 클론 완료: ~/umi-galaxy-s21
+#   - DROID-SLAM 클론 완료: umi-galaxy-s21과 같은 부모 디렉토리 아래에 DROID-SLAM 폴더로 클론
+#     예) ~/foo/umi-galaxy-s21  →  ~/foo/DROID-SLAM
 #
 # 검증 환경: Ubuntu 22.04, CUDA 12.8, RTX 5060 Ti
 set -e
@@ -55,27 +55,30 @@ if [ -z "$CONDA_BASE" ]; then
 fi
 echo "[INFO] conda base: $CONDA_BASE"
 
-# ── 3. DROID-SLAM 경로 확인 ──────────────────────────────────────────────
-DROID_DIR="$HOME/DROID-SLAM"
+# ── 3. umi-galaxy-s21 경로 확인 (스크립트 위치 기준 자동 감지) ──────────
+UMI_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ ! -f "$UMI_DIR/conda_environment.yaml" ]; then
+    echo "[ERROR] conda_environment.yaml not found at $UMI_DIR"
+    echo "  이 스크립트는 umi-galaxy-s21 리포지토리 루트에서 실행해야 합니다."
+    exit 1
+fi
+echo "[INFO] umi-galaxy-s21: $UMI_DIR"
+
+# ── 4. DROID-SLAM 경로 확인 (umi-galaxy-s21과 같은 부모 디렉토리) ────────
+PARENT_DIR="$(dirname "$UMI_DIR")"
+DROID_DIR="$PARENT_DIR/DROID-SLAM"
 if [ ! -d "$DROID_DIR" ]; then
     echo "[ERROR] DROID-SLAM not found at $DROID_DIR"
-    echo "  Run: git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git ~/DROID-SLAM"
+    echo "  umi-galaxy-s21과 같은 디렉토리에 DROID-SLAM을 클론하세요:"
+    echo "  git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git $DROID_DIR"
     exit 1
 fi
 if [ ! -d "$DROID_DIR/thirdparty/lietorch" ]; then
     echo "[ERROR] thirdparty/lietorch not found."
-    echo "  Run: cd ~/DROID-SLAM && git submodule update --init --recursive"
+    echo "  Run: cd $DROID_DIR && git submodule update --init --recursive"
     exit 1
 fi
 echo "[INFO] DROID-SLAM: $DROID_DIR"
-
-# ── 4. umi-galaxy-s21 경로 확인 ──────────────────────────────────────────
-UMI_DIR="$HOME/umi-galaxy-s21"
-if [ ! -d "$UMI_DIR" ]; then
-    echo "[ERROR] umi-galaxy-s21 not found at $UMI_DIR"
-    exit 1
-fi
-echo "[INFO] umi-galaxy-s21: $UMI_DIR"
 echo ""
 
 # ── 5. conda 환경 생성 (umi conda_environment.yaml 기반) ─────────────────

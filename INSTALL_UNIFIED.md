@@ -103,22 +103,30 @@ conda --version
 
 ### 1-4. 이 리포지토리 클론
 
+원하는 경로에 자유롭게 클론한다.
+
 ```bash
 git clone https://github.com/jkw0701/umi-galaxy-s21.git ~/umi-galaxy-s21
 cd ~/umi-galaxy-s21
 ```
 
-> **주의**: `install_umi_full_env.sh`가 `~/umi-galaxy-s21` 경로를 참조한다. 다른 경로에 클론하면 스크립트가 실패한다.
-
 ---
 
 ### 1-5. DROID-SLAM 클론
 
+**umi-galaxy-s21과 같은 부모 디렉토리** 아래에 `DROID-SLAM` 이름으로 클론해야 한다.
+
 ```bash
+# umi-galaxy-s21이 ~/umi-galaxy-s21에 있는 경우
 git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git ~/DROID-SLAM
 ```
 
-> **주의**: `install_umi_full_env.sh`가 `~/DROID-SLAM` 경로를 참조한다. 다른 경로에 클론하면 스크립트가 실패한다.
+예를 들어 umi-galaxy-s21을 `~/foo/umi-galaxy-s21`에 클론했다면:
+```bash
+git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git ~/foo/DROID-SLAM
+```
+
+> `install_umi_full_env.sh`와 파이프라인 코드가 umi-galaxy-s21의 부모 디렉토리를 기준으로 DROID-SLAM 경로를 자동 감지한다.
 
 `--recursive` 플래그가 반드시 필요하다. 빠뜨린 경우:
 ```bash
@@ -132,8 +140,11 @@ cd ~/DROID-SLAM && git submodule update --init --recursive
 `droid.pth`는 이 리포지토리에 포함되어 있다 (Git LFS로 관리). `git clone` 시 자동으로 다운로드된다.
 
 ```bash
+# umi-galaxy-s21이 ~/umi-galaxy-s21에 있는 경우
 cp ~/umi-galaxy-s21/droid.pth ~/DROID-SLAM/droid.pth
 ```
+
+umi-galaxy-s21을 다른 경로에 클론했다면 해당 경로에 맞게 조정한다.
 
 ---
 
