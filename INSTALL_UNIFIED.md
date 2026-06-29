@@ -37,6 +37,11 @@ nvidia-smi
 find /usr/local /opt -name nvcc 2>/dev/null
 ```
 
+결과가 비어있는데 설치한 기억이 있다면 전체 탐색으로 확인한다 (느림):
+```bash
+find / -name nvcc 2>/dev/null
+```
+
 - **경우 A** — `nvidia-smi`가 실행되지 않는 경우: GPU 드라이버 없음. 별도 설치 필요.
 - **경우 B** — `nvidia-smi`는 되지만 `find` 결과가 비어있는 경우: CUDA Toolkit 없음. → **1-2로 이동**
 - **경우 C** — `find` 결과에 `/usr/local/cuda-12.8/bin/nvcc` 경로가 출력되는 경우: → **1-2 건너뛰고 1-3으로 이동**
