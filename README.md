@@ -75,6 +75,18 @@ python receive_server.py
 
 ---
 
+### (선택) 영상 타임스탬프 수정
+
+Android 앱이 AAC 오디오 타임스탬프를 부팅 시각 기준 절대값으로 기록하는 경우, 영상이 정상 재생되지 않을 수 있다. 이 경우 아래 스크립트로 일괄 수정한다.
+
+```bash
+python fix_audio_timestamps.py --input /path/to/session_dir
+```
+
+수정된 영상은 `<input_dir>/fixed/` 하위에 저장된다. 원본은 변경되지 않는다.
+
+---
+
 ### Step 1 — DROID-SLAM 실행
 
 명령어 하나로 세션 폴더 안의 **모든 에피소드에 대해 DROID-SLAM을 일괄 실행**한다. 에피소드마다 개별로 실행할 필요가 없다.
