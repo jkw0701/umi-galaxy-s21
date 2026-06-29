@@ -174,13 +174,9 @@ def process_video(video_dir: pathlib.Path, calib_path: pathlib.Path,
             frontend_window=frontend_window,
         )
 
-        if result.returncode != 0:
+        if not output_csv.is_file():
             print(f"  [{video_dir.name}] DROID-SLAM FAILED (returncode={result.returncode})")
             print(f"    Check: {stderr_path}")
-            return False
-
-        if not output_csv.is_file():
-            print(f"  [{video_dir.name}] FAILED: camera_trajectory.csv not created")
             return False
 
         print(f"  [{video_dir.name}] Done -> {output_csv.name}")
