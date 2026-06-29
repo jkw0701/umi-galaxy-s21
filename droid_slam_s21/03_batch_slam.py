@@ -41,7 +41,7 @@ from umi.common.cv_util import draw_s21_slam_mask
 
 
 DROID_SLAM_DIR = pathlib.Path.home() / 'DROID-SLAM'
-DROID_CONDA_ENV = 'droid'
+DROID_CONDA_ENV = 'umi_full'
 
 
 def extract_frames(video_path: pathlib.Path, output_dir: pathlib.Path,
