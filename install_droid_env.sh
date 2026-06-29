@@ -22,19 +22,22 @@ echo "============================================================"
 #   2) nvcc가 PATH에 있는 경우 그 위치에서 역으로 CUDA_HOME 추론
 #   3) /usr/local/cuda* 중 nvcc가 존재하는 디렉토리 탐색
 find_cuda_home() {
+    # 1) 명시적으로 CUDA_HOME이 설정된 경우 우선 사용
     if [ -n "$CUDA_HOME" ] && [ -x "$CUDA_HOME/bin/nvcc" ]; then
         echo "$CUDA_HOME"; return
     fi
-    local nvcc_path
-    nvcc_path=$(command -v nvcc 2>/dev/null)
-    if [ -n "$nvcc_path" ]; then
-        echo "$(dirname "$(dirname "$nvcc_path")")"; return
-    fi
+    # 2) /usr/local/cuda* 중 가장 높은 버전 탐색 (/usr/bin/nvcc 같은 시스템 패키지보다 우선)
     for d in $(ls -d /usr/local/cuda* 2>/dev/null | sort -rV); do
         if [ -x "$d/bin/nvcc" ]; then
             echo "$d"; return
         fi
     done
+    # 3) PATH의 nvcc (단, /usr/bin은 시스템 패키지이므로 제외)
+    local nvcc_path
+    nvcc_path=$(command -v nvcc 2>/dev/null)
+    if [ -n "$nvcc_path" ] && [[ "$nvcc_path" != /usr/bin/* ]]; then
+        echo "$(dirname "$(dirname "$nvcc_path")")"; return
+    fi
     echo ""
 }
 
@@ -101,7 +104,9 @@ echo ""
 echo "==> [4/6] Building lietorch (CUDA kernel compile — a few minutes)..."
 conda run -n droid --no-capture-output \
     bash -c "export CUDA_HOME=$CUDA_HOME && export PATH=$CUDA_HOME/bin:\$PATH && \
-             cd $DROID_DIR/thirdparty/lietorch && python setup.py develop"
+             cd $DROID_DIR/thirdparty/lietorch && \
+             python setup.py build_ext --inplace && \
+             pip install -e . --no-build-isolation"
 
 conda run -n droid python -c "import lietorch; print('[OK] lietorch')"
 echo ""
@@ -110,7 +115,8 @@ echo ""
 echo "==> [5/6] Building droid_backends..."
 conda run -n droid --no-capture-output \
     bash -c "export CUDA_HOME=$CUDA_HOME && export PATH=$CUDA_HOME/bin:\$PATH && \
-             cd $DROID_DIR && python setup.py install"
+             cd $DROID_DIR && python setup.py install --no-build-isolation 2>/dev/null || \
+             pip install . --no-build-isolation"
 echo ""
 
 # ── 9. torch-scatter 설치 ─────────────────────────────────────────────────

@@ -20,19 +20,22 @@ echo "============================================================"
 
 # ── 1. CUDA 경로 자동 감지 ────────────────────────────────────────────────
 find_cuda_home() {
+    # 1) 명시적으로 CUDA_HOME이 설정된 경우 우선 사용
     if [ -n "$CUDA_HOME" ] && [ -x "$CUDA_HOME/bin/nvcc" ]; then
         echo "$CUDA_HOME"; return
     fi
-    local nvcc_path
-    nvcc_path=$(command -v nvcc 2>/dev/null)
-    if [ -n "$nvcc_path" ]; then
-        echo "$(dirname "$(dirname "$nvcc_path")")"; return
-    fi
+    # 2) /usr/local/cuda* 중 가장 높은 버전 탐색 (/usr/bin/nvcc 같은 시스템 패키지보다 우선)
     for d in $(ls -d /usr/local/cuda* 2>/dev/null | sort -rV); do
         if [ -x "$d/bin/nvcc" ]; then
             echo "$d"; return
         fi
     done
+    # 3) PATH의 nvcc (단, /usr/bin은 시스템 패키지이므로 제외)
+    local nvcc_path
+    nvcc_path=$(command -v nvcc 2>/dev/null)
+    if [ -n "$nvcc_path" ] && [[ "$nvcc_path" != /usr/bin/* ]]; then
+        echo "$(dirname "$(dirname "$nvcc_path")")"; return
+    fi
     echo ""
 }
 
