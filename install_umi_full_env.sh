@@ -96,12 +96,12 @@ echo "[INFO] DROID-SLAM: $DROID_DIR"
 echo ""
 
 # ── 5. conda 환경 생성 (umi conda_environment.yaml 기반) ─────────────────
-echo "==> [1/8] Creating conda environment 'umi_full' from conda_environment.yaml..."
+echo "==> [1/9] Creating conda environment 'umi_full' from conda_environment.yaml..."
 conda env create -n umi_full -f "$UMI_DIR/conda_environment.yaml"
 echo ""
 
 # ── 6. PyTorch CUDA 검증 ─────────────────────────────────────────────────
-echo "==> [2/8] Verifying PyTorch CUDA..."
+echo "==> [2/9] Verifying PyTorch CUDA..."
 conda run -n umi_full python -c "
 import torch
 assert torch.cuda.is_available(), 'CUDA not available'
@@ -110,13 +110,63 @@ print('[OK] torch:', torch.__version__, '| CUDA:', torch.cuda.is_available())
 echo ""
 
 # ── 7. droid 전용 의존성 설치 ────────────────────────────────────────────
-echo "==> [3/8] Installing droid-specific dependencies..."
+echo "==> [3/9] Installing droid-specific dependencies..."
 conda run -n umi_full pip install \
     open3d pyquaternion
 echo ""
 
-# ── 8. lietorch 빌드 ──────────────────────────────────────────────────────
-echo "==> [4/8] Building lietorch (CUDA kernel compile — a few minutes)..."
+# ── 8. lietorch setup.py 아키텍처 패치 ───────────────────────────────────
+# 원본 setup.py는 sm_60~sm_75까지만 포함 → RTX 30/40/50 시리즈 누락
+# sm_60/61/70 제거 후 sm_86(RTX30), sm_89(RTX40), compute_89 PTX(RTX50 JIT) 추가
+echo "==> [4/8] Patching lietorch setup.py for modern GPU architectures..."
+python3 - << 'PYEOF'
+import re, sys
+
+path = sys.argv[1] if len(sys.argv) > 1 else None
+import os
+setup_path = os.environ.get('DROID_DIR', '') + '/thirdparty/lietorch/setup.py'
+
+with open(setup_path) as f:
+    content = f.read()
+
+# 제거: sm_60, sm_61, sm_70 (Pascal/Volta, 2016~2017년)
+for old in [
+    "                    '-gencode=arch=compute_60,code=sm_60', \n",
+    "                    '-gencode=arch=compute_61,code=sm_61', \n",
+    "                    '-gencode=arch=compute_70,code=sm_70', \n",
+]:
+    content = content.replace(old, '')
+
+# 추가: sm_86(RTX30), sm_89(RTX40), compute_89 PTX(RTX50 JIT fallback)
+# compute_75 PTX 다음에 삽입 (이미 없는 경우에만)
+addition = (
+    "                    '-gencode=arch=compute_80,code=sm_80',\n"
+    "                    '-gencode=arch=compute_86,code=sm_86',\n"
+    "                    '-gencode=arch=compute_89,code=sm_89',\n"
+    "                    '-gencode=arch=compute_89,code=compute_89',\n"
+)
+anchor = "                    '-gencode=arch=compute_75,code=compute_75',\n"
+if 'compute_89' not in content:
+    content = content.replace(anchor, anchor + addition)
+
+with open(setup_path, 'w') as f:
+    f.write(content)
+
+print('[OK] lietorch setup.py patched')
+PYEOF
+DROID_DIR="$DROID_DIR" python3 - << 'PYEOF'
+import os, sys
+setup_path = os.environ['DROID_DIR'] + '/thirdparty/lietorch/setup.py'
+with open(setup_path) as f:
+    content = f.read()
+import re
+arches = re.findall(r"code=(sm_\d+|compute_\d+)", content)
+print('[INFO] target architectures:', ', '.join(dict.fromkeys(arches)))
+PYEOF
+echo ""
+
+# ── 9. lietorch 빌드 ──────────────────────────────────────────────────────
+echo "==> [5/8] Building lietorch (CUDA kernel compile — a few minutes)..."
 conda run -n umi_full --no-capture-output \
     bash -c "export CUDA_HOME=$CUDA_HOME && export PATH=$CUDA_HOME/bin:\$PATH && \
              cd $DROID_DIR/thirdparty/lietorch && \
@@ -126,22 +176,22 @@ conda run -n umi_full --no-capture-output \
 conda run -n umi_full python -c "import lietorch; print('[OK] lietorch')"
 echo ""
 
-# ── 9. droid_backends 빌드 ────────────────────────────────────────────────
-echo "==> [5/8] Building droid_backends..."
+# ── 10. droid_backends 빌드 ───────────────────────────────────────────────
+echo "==> [6/8] Building droid_backends..."
 conda run -n umi_full --no-capture-output \
     bash -c "export CUDA_HOME=$CUDA_HOME && export PATH=$CUDA_HOME/bin:\$PATH && \
              cd $DROID_DIR && python setup.py install --no-build-isolation 2>/dev/null || \
              pip install . --no-build-isolation"
 echo ""
 
-# ── 10. torch-scatter 설치 ────────────────────────────────────────────────
-echo "==> [6/8] Installing torch-scatter..."
+# ── 11. torch-scatter 설치 ────────────────────────────────────────────────
+echo "==> [7/8] Installing torch-scatter..."
 conda run -n umi_full pip install torch-scatter \
     -f https://data.pyg.org/whl/torch-2.11.0+cu128.html
 echo ""
 
-# ── 11. 환경변수 영구 등록 ────────────────────────────────────────────────
-echo "==> [7/8] Registering permanent environment variables..."
+# ── 12. 환경변수 영구 등록 ────────────────────────────────────────────────
+echo "==> [8/8] Registering permanent environment variables..."
 
 ENV_DIR="$CONDA_BASE/envs/umi_full"
 SITE_PACKAGES=$(find "$ENV_DIR/lib" -maxdepth 2 -type d -name "site-packages" | head -1)
@@ -166,7 +216,7 @@ echo "[OK] droid_slam.pth registered: $PTH_PATH"
 echo ""
 
 # ── 12. 최종 확인 ─────────────────────────────────────────────────────────
-echo "==> [8/8] Final verification..."
+echo "==> [9/9] Final verification..."
 conda run -n umi_full \
     bash -c "export LD_LIBRARY_PATH=$TORCH_LIB:\$LD_LIBRARY_PATH && \
              export PYTHONPATH=$DROID_DIR/droid_slam:\$PYTHONPATH && \
