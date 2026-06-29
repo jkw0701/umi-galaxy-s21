@@ -128,9 +128,9 @@ git clone --recursive https://github.com/princeton-vl/DROID-SLAM.git ~/foo/DROID
 
 > `install_umi_full_env.sh`와 파이프라인 코드가 umi-galaxy-s21의 부모 디렉토리를 기준으로 DROID-SLAM 경로를 자동 감지한다.
 
-`--recursive` 플래그가 반드시 필요하다. 빠뜨린 경우:
+`--recursive` 플래그가 반드시 필요하다. 빠뜨린 경우 (umi-galaxy-s21 디렉토리 안에서 실행):
 ```bash
-cd ~/DROID-SLAM && git submodule update --init --recursive
+cd ../DROID-SLAM && git submodule update --init --recursive
 ```
 
 ---
