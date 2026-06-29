@@ -139,12 +139,14 @@ cd ~/DROID-SLAM && git submodule update --init --recursive
 
 `droid.pth`는 이 리포지토리에 포함되어 있다 (Git LFS로 관리). `git clone` 시 자동으로 다운로드된다.
 
+아래 명령을 **umi-galaxy-s21 디렉토리 안에서** 실행한다:
+
 ```bash
-# umi-galaxy-s21이 ~/umi-galaxy-s21에 있는 경우
-cp ~/umi-galaxy-s21/droid.pth ~/DROID-SLAM/droid.pth
+cd /path/to/umi-galaxy-s21
+cp droid.pth ../DROID-SLAM/droid.pth
 ```
 
-umi-galaxy-s21을 다른 경로에 클론했다면 해당 경로에 맞게 조정한다.
+`../DROID-SLAM`은 umi-galaxy-s21의 부모 디렉토리 기준으로 자동으로 올바른 경로를 가리킨다.
 
 ---
 
