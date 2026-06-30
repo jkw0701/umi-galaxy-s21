@@ -118,51 +118,41 @@ echo ""
 # ── 8. lietorch setup.py 아키텍처 패치 ───────────────────────────────────
 # 원본 setup.py는 sm_60~sm_75까지만 포함 → RTX 30/40/50 시리즈 누락
 # sm_60/61/70 제거 후 sm_86(RTX30), sm_89(RTX40), compute_89 PTX(RTX50 JIT) 추가
-echo "==> [4/8] Patching lietorch setup.py for modern GPU architectures..."
-python3 - << 'PYEOF'
-import re, sys
+echo "==> [4/9] Patching lietorch setup.py for modern GPU architectures..."
+SETUP_PY="$DROID_DIR/thirdparty/lietorch/setup.py"
+python3 -c "
+import re
 
-path = sys.argv[1] if len(sys.argv) > 1 else None
-import os
-setup_path = os.environ.get('DROID_DIR', '') + '/thirdparty/lietorch/setup.py'
-
+setup_path = '$SETUP_PY'
 with open(setup_path) as f:
     content = f.read()
 
 # 제거: sm_60, sm_61, sm_70 (Pascal/Volta, 2016~2017년)
 for old in [
-    "                    '-gencode=arch=compute_60,code=sm_60', \n",
-    "                    '-gencode=arch=compute_61,code=sm_61', \n",
-    "                    '-gencode=arch=compute_70,code=sm_70', \n",
+    \"                    '-gencode=arch=compute_60,code=sm_60', \n\",
+    \"                    '-gencode=arch=compute_61,code=sm_61', \n\",
+    \"                    '-gencode=arch=compute_70,code=sm_70', \n\",
 ]:
     content = content.replace(old, '')
 
 # 추가: sm_86(RTX30), sm_89(RTX40), compute_89 PTX(RTX50 JIT fallback)
-# compute_75 PTX 다음에 삽입 (이미 없는 경우에만)
 addition = (
-    "                    '-gencode=arch=compute_80,code=sm_80',\n"
-    "                    '-gencode=arch=compute_86,code=sm_86',\n"
-    "                    '-gencode=arch=compute_89,code=sm_89',\n"
-    "                    '-gencode=arch=compute_89,code=compute_89',\n"
+    \"                    '-gencode=arch=compute_80,code=sm_80',\n\"
+    \"                    '-gencode=arch=compute_86,code=sm_86',\n\"
+    \"                    '-gencode=arch=compute_89,code=sm_89',\n\"
+    \"                    '-gencode=arch=compute_89,code=compute_89',\n\"
 )
-anchor = "                    '-gencode=arch=compute_75,code=compute_75',\n"
+anchor = \"                    '-gencode=arch=compute_75,code=compute_75',\n\"
 if 'compute_89' not in content:
     content = content.replace(anchor, anchor + addition)
 
 with open(setup_path, 'w') as f:
     f.write(content)
 
+arches = re.findall(r'code=(sm_\d+|compute_\d+)', content)
 print('[OK] lietorch setup.py patched')
-PYEOF
-DROID_DIR="$DROID_DIR" python3 - << 'PYEOF'
-import os, sys
-setup_path = os.environ['DROID_DIR'] + '/thirdparty/lietorch/setup.py'
-with open(setup_path) as f:
-    content = f.read()
-import re
-arches = re.findall(r"code=(sm_\d+|compute_\d+)", content)
 print('[INFO] target architectures:', ', '.join(dict.fromkeys(arches)))
-PYEOF
+"
 echo ""
 
 # ── 9. lietorch 빌드 ──────────────────────────────────────────────────────
