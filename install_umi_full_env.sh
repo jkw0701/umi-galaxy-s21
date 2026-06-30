@@ -201,9 +201,14 @@ conda run -n umi_full pip install torch-scatter \
     -f https://data.pyg.org/whl/torch-${TORCH_VER}+${TORCH_CU}.html
 echo ""
 
-# ── 11b. wandb 버전 고정 (다른 패키지가 신버전으로 업그레이드할 수 있음) ──
-echo "==> Pinning wandb==0.15.8..."
+# ── 11b. wandb / protobuf / setuptools 버전 고정 ─────────────────────────
+# wandb 0.15.8: 신버전은 proto AttributeError 발생
+# protobuf 4.25.8: tensorboard 신버전이 runtime_version import → wandb 충돌
+# setuptools<70: pkg_resources 모듈 제거됨 (학습 시 ModuleNotFoundError)
+echo "==> Pinning wandb==0.15.8, protobuf==4.25.8, setuptools<70..."
 conda run -n umi_full pip install wandb==0.15.8 --force-reinstall -q
+conda run -n umi_full pip install "protobuf==4.25.8" --force-reinstall -q
+conda run -n umi_full pip install "setuptools<70" --force-reinstall -q
 echo ""
 
 # ── 12. 환경변수 영구 등록 ────────────────────────────────────────────────
