@@ -61,6 +61,22 @@ export PATH=$CUDA_HOME/bin:$PATH
 echo "[INFO] CUDA_HOME: $CUDA_HOME"
 echo "[INFO] nvcc: $(nvcc --version | grep release)"
 
+# ── CUDA 버전 감지 → torch wheel 태그 결정 ───────────────────────────────
+CUDA_VERSION=$("$CUDA_HOME/bin/nvcc" --version | grep -oP 'release \K[0-9]+\.[0-9]+')
+CUDA_MAJOR=$(echo "$CUDA_VERSION" | cut -d. -f1)
+CUDA_MINOR=$(echo "$CUDA_VERSION" | cut -d. -f2)
+CUDA_INT=$((CUDA_MAJOR * 10 + CUDA_MINOR))  # 12.4 → 124, 12.8 → 128
+
+if   [ "$CUDA_INT" -ge 128 ]; then TORCH_CU="cu128"
+elif [ "$CUDA_INT" -ge 124 ]; then TORCH_CU="cu124"
+elif [ "$CUDA_INT" -ge 121 ]; then TORCH_CU="cu121"
+elif [ "$CUDA_INT" -ge 118 ]; then TORCH_CU="cu118"
+else
+    echo "[ERROR] CUDA ${CUDA_VERSION} is too old. Minimum required: 11.8"
+    exit 1
+fi
+echo "[INFO] CUDA ${CUDA_VERSION} detected → torch wheel: ${TORCH_CU}"
+
 # ── 2. conda 경로 자동 감지 ──────────────────────────────────────────────
 CONDA_BASE=$(conda info --base 2>/dev/null)
 if [ -z "$CONDA_BASE" ]; then
@@ -100,8 +116,15 @@ echo "==> [1/9] Creating conda environment 'umi_full' from conda_environment.yam
 conda env create -n umi_full -f "$UMI_DIR/conda_environment.yaml"
 echo ""
 
-# ── 6. PyTorch CUDA 검증 ─────────────────────────────────────────────────
-echo "==> [2/9] Verifying PyTorch CUDA..."
+# ── 6. PyTorch 설치 (yaml에 없는 경우 자동 감지 버전으로 설치) ───────────
+echo "==> [2/9] Installing/verifying PyTorch (${TORCH_CU})..."
+# yaml에 torch가 포함되어 있지 않을 수 있으므로 항상 pip으로 보장
+conda run -n umi_full pip install \
+    torch==2.11.0+${TORCH_CU} \
+    torchvision==0.26.0+${TORCH_CU} \
+    torchaudio==2.11.0+${TORCH_CU} \
+    --index-url https://download.pytorch.org/whl/${TORCH_CU}
+
 conda run -n umi_full python -c "
 import torch
 assert torch.cuda.is_available(), 'CUDA not available'
@@ -177,7 +200,7 @@ echo ""
 # ── 11. torch-scatter 설치 ────────────────────────────────────────────────
 echo "==> [7/8] Installing torch-scatter..."
 conda run -n umi_full pip install torch-scatter \
-    -f https://data.pyg.org/whl/torch-2.11.0+cu128.html
+    -f https://data.pyg.org/whl/torch-2.11.0+${TORCH_CU}.html
 echo ""
 
 # ── 12. 환경변수 영구 등록 ────────────────────────────────────────────────
