@@ -296,6 +296,23 @@ python scripts_real/eval_real_umi_ensemble.py \
 
 > `--mask_mode s21`: S21 그리퍼 하단 영역을 마스킹한다.
 
+### (선택) 평가 결과 시각화
+
+평가 중 저장된 `debug_log.pkl`과 영상을 불러와 모델이 각 스텝에서 예측한 action을 영상 옆에 그래프로 붙인 분석 비디오를 생성한다.
+
+```bash
+python visualize_eval_video.py \
+    /path/to/eval_data \
+    $(ls /path/to/eval_data/videos)
+```
+
+출력: `eval_data/all_analysis_results/test/` 하위에 에피소드별 mp4 파일 저장
+
+특정 에피소드만 처리:
+```bash
+python visualize_eval_video.py /path/to/eval_data 208 211_fail_intermediate
+```
+
 ---
 
 ## 3. 작업 — 다중 오브젝트 분류 배치
