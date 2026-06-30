@@ -28,7 +28,10 @@ def main():
         print(f"Directory not found: {video_dir}")
         sys.exit(1)
 
-    videos = sorted(video_dir.rglob("*.mp4"))
+    videos = sorted(
+        p for p in video_dir.rglob("*.mp4")
+        if "demos" not in p.parts
+    )
     if not videos:
         print("No video files found.")
         sys.exit(1)
