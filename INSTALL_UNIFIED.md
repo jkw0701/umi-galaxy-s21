@@ -209,6 +209,8 @@ python run_slam_pipeline_s21.py process-droid \
 
 ## 트러블슈팅
 
+### 설치 오류
+
 | 오류 | 원인 | 해결 |
 |------|------|------|
 | `CUDA Toolkit not found` | nvcc를 어디서도 찾지 못함 | `find /usr/local -name nvcc`로 위치 확인 후 `export CUDA_HOME=...` 설정 |
@@ -218,3 +220,80 @@ python run_slam_pipeline_s21.py process-droid \
 | `ModuleNotFoundError: No module named 'droid'` | droid_slam 모듈 경로 미등록 | `install_umi_full_env.sh` 재실행 |
 | `ModuleNotFoundError: No module named 'torch_scatter'` | torch-scatter 미설치 | `conda run -n umi_full pip install torch-scatter -f https://data.pyg.org/whl/torch-2.11.0+cu128.html` |
 | `droid.pth not found` | 모델 가중치 미복사 | `cp ~/umi-galaxy-s21/droid.pth ~/DROID-SLAM/droid.pth` 실행 |
+
+### 학습(train.py) 오류
+
+#### Blackwell GPU (sm_120, RTX PRO 4000 등) — CUDA kernel 오류
+
+```
+RuntimeError: CUDA error: no kernel image is available for execution on the device
+UserWarning: sm_120 is not compatible with the current PyTorch installation
+```
+
+torch 2.6.0은 sm_120을 지원하지 않는다 (최대 sm_90). CUDA 12.8 + torch 2.7.0이 필요하다.
+
+```bash
+# 1. CUDA 12.8 설치 (미설치 시)
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+sudo apt-get update
+sudo apt-get install -y cuda-toolkit-12-8
+
+# 2. torch 2.7.0+cu128으로 업그레이드
+conda run -n umi_full pip install \
+    torch==2.7.0+cu128 torchvision==0.22.0+cu128 torchaudio==2.7.0+cu128 \
+    --index-url https://download.pytorch.org/whl/cu128 --force-reinstall
+
+# 3. numpy 충돌 해결 (torch 2.7.0이 numpy 2.x를 설치함)
+conda run -n umi_full pip install "numpy<2.0.0" --force-reinstall -q
+
+# 4. setuptools 재고정
+conda run -n umi_full pip install "setuptools==59.5.0" --force-reinstall -q
+```
+
+#### `ModuleNotFoundError: No module named 'pkg_resources'`
+
+setuptools≥70에서 pkg_resources가 제거됨.
+
+```bash
+conda run -n umi_full pip install "setuptools==59.5.0" --force-reinstall -q
+```
+
+#### `ImportError: cannot import name 'runtime_version' from 'google.protobuf'`
+
+wandb + tensorboard protobuf 버전 충돌.
+
+```bash
+conda run -n umi_full pip install "protobuf==4.25.8" --force-reinstall -q
+```
+
+#### `AssertionError: .../distutils/core.py` (hydra import 실패)
+
+setuptools 버전이 올라가면서 _distutils_hack 충돌.
+
+```bash
+conda run -n umi_full pip install "setuptools==59.5.0" --force-reinstall -q
+```
+
+#### wandb transport failed / SSL 오류 (기관 네트워크)
+
+기관 네트워크의 SSL 인스펙션으로 conda Python이 wandb.ai에 접속 불가.
+
+```bash
+# 시스템 CA 인증서 사용 설정
+conda run -n umi_full pip install pip-system-certs
+
+# wandb 로그인 (API key: https://wandb.ai/authorize)
+SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt \
+REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
+conda run -n umi_full wandb login <API_KEY>
+```
+
+#### `ValueError: API key must be 40 characters long` (wandb login)
+
+wandb 0.15.8이 새 형식의 API key(`wandb_v1_...`)를 지원하지 않음.
+
+```bash
+conda run -n umi_full pip install "wandb>=0.16.0" --force-reinstall -q
+conda run -n umi_full pip install "setuptools==59.5.0" --force-reinstall -q  # wandb 설치 후 재고정
+```
