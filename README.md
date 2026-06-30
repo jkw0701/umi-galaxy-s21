@@ -414,3 +414,49 @@ DROID-SLAM의 궤적 품질은 세 파라미터(filter_thresh, keyframe_thresh, 
 - **원본 UMI 논문**: [https://umi-gripper.github.io/](https://umi-gripper.github.io/)
 - **DROID-SLAM**: [https://github.com/princeton-vl/DROID-SLAM](https://github.com/princeton-vl/DROID-SLAM)
 - **Franka 평가 설정**: [example/eval_franka_robots_config.yaml](example/eval_franka_robots_config.yaml)
+
+---
+
+## 부록 — SLAM 품질 확인 및 파라미터 튜닝
+
+### SLAM 품질 확인
+
+Z축 변위가 기준치를 초과하는 불안정 에피소드를 찾아 그래프로 시각화한다.
+
+```bash
+python droid_slam_s21/check_slam_quality.py \
+    -i /path/to/session_dir \
+    --start 90 --end 140 \
+    --threshold 5.0 \
+    -o slam_quality.png
+```
+
+| 옵션 | 기본값 | 설명 |
+|------|--------|------|
+| `-i` | (필수) | SLAM 결과가 있는 session 디렉토리 |
+| `--start` | 90 | 분석 시작 프레임 |
+| `--end` | 140 | 분석 종료 프레임 |
+| `--threshold` | 5.0 | 불안정 판단 기준 (mm/frame, Z 최대 변화량) |
+| `-o` | 화면 출력 | 그래프 저장 경로 |
+
+### 파라미터 전체 탐색 (filter → kf → warmup → fw 순차)
+
+```bash
+python droid_slam_s21/tune_slam_params.py \
+    --session_dir /path/to/session_dir \
+    --calibration_dir example/calibration_s21 \
+    --ref aruco
+```
+
+### warmup 단독 탐색
+
+filter/kf/fw를 고정하고 warmup만 증가시키며 탐색한다. 초반 SLAM 불안정이 의심될 때 사용한다.
+
+```bash
+python droid_slam_s21/tune_warmup.py \
+    --session_dir /path/to/session_dir \
+    --calibration_dir example/calibration_s21 \
+    --ref aruco
+```
+
+결과는 `<session_dir>/tune_warmup_log.json`에 저장되며 중단 후 이어서 실행할 수 있다.
