@@ -182,7 +182,7 @@ conda run -n umi_full --no-capture-output \
     bash -c "export CUDA_HOME=$CUDA_HOME && export PATH=$CUDA_HOME/bin:\$PATH && \
              cd $DROID_DIR/thirdparty/lietorch && \
              python setup.py build_ext --inplace && \
-             pip install -e . --no-build-isolation"
+             pip install . --no-build-isolation"
 
 conda run -n umi_full python -c "import lietorch; print('[OK] lietorch')"
 echo ""
