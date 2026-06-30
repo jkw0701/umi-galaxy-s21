@@ -196,9 +196,14 @@ conda run -n umi_full --no-capture-output \
 echo ""
 
 # ── 11. torch-scatter 설치 ────────────────────────────────────────────────
-echo "==> [7/8] Installing torch-scatter..."
+echo "==> [7/9] Installing torch-scatter..."
 conda run -n umi_full pip install torch-scatter \
     -f https://data.pyg.org/whl/torch-${TORCH_VER}+${TORCH_CU}.html
+echo ""
+
+# ── 11b. wandb 버전 고정 (다른 패키지가 신버전으로 업그레이드할 수 있음) ──
+echo "==> Pinning wandb==0.15.8..."
+conda run -n umi_full pip install wandb==0.15.8 --force-reinstall -q
 echo ""
 
 # ── 12. 환경변수 영구 등록 ────────────────────────────────────────────────
