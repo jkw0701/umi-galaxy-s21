@@ -73,6 +73,28 @@ python receive_server.py
 
 저장 위치: `~/Downloads/robotdatalearning_local/{session_id}/`
 
+### (선택) 데모 영상 선별
+
+수집한 데모 영상을 재생하며 품질을 확인하고 불량 에피소드를 골라낼 수 있다.
+
+```bash
+python review_demos.py /path/to/session_dir
+```
+
+| 키 | 동작 |
+|----|------|
+| `n` | 다음 영상 |
+| `p` | 이전 영상 |
+| `space` | 일시정지 / 재생 |
+| `+` / `=` | 배속 증가 (0.25x 단위, 최대 8x) |
+| `-` | 배속 감소 |
+| `q` | 종료 |
+
+특정 번호부터 시작하려면 인덱스를 두 번째 인자로 전달한다:
+```bash
+python review_demos.py /path/to/session_dir 10
+```
+
 ---
 
 ### (선택) 영상 타임스탬프 수정
@@ -202,30 +224,6 @@ python droid_slam_s21/07_generate_replay_buffer.py \
   /path/to/session_wine \
   /path/to/session_recovery \
   -o /path/to/output/dataset_combined.zarr.zip
-```
-
----
-
-### (선택) 데모 영상 선별
-
-Step 1 실행 후, 수집한 데모 영상을 재생하며 품질을 확인하고 불량 에피소드를 골라낼 수 있다.
-
-```bash
-python review_demos.py /path/to/session_dir
-```
-
-| 키 | 동작 |
-|----|------|
-| `n` | 다음 영상 |
-| `p` | 이전 영상 |
-| `space` | 일시정지 / 재생 |
-| `+` / `=` | 배속 증가 (0.25x 단위, 최대 8x) |
-| `-` | 배속 감소 |
-| `q` | 종료 |
-
-특정 번호부터 시작하려면 인덱스를 두 번째 인자로 전달한다:
-```bash
-python review_demos.py /path/to/session_dir 10
 ```
 
 ---
