@@ -8,9 +8,26 @@
 <img width="300" height="400" alt="s21_umi2" src="https://github.com/user-attachments/assets/24cc1b8c-e41f-46a0-9f8e-1b0576d3a29c" />
 <img width="400" height="300" alt="s21_umi" src="https://github.com/user-attachments/assets/2389f94f-bea5-45da-afb8-9cc35316891c" />
 
-## 결과 영상
+## 결과 영상 
+### 성공 
+- Pick-and-Place (Out-of-distribution)
+<img width="480" height="270" alt="s21_OOD_navy_1" src="https://github.com/user-attachments/assets/343776b3-f3a6-4b49-8a5b-664d21329ae5" />
+<img width="480" height="270" alt="s21_OOD_navy_2" src="https://github.com/user-attachments/assets/26ee6bde-32cd-4e31-9261-7fdb3b8ee93d" />
+
+- 분리 수거
+<img width="480" height="270" alt="분리수거_뚱캔_같은방향" src="https://github.com/user-attachments/assets/13fa4d6b-8027-4c55-b89d-3b9bbdc7e212" />
+<img width="480" height="270" alt="분리수거_얇은캔_교차방향" src="https://github.com/user-attachments/assets/2fe2d9e5-41a8-4278-a9c9-30541cb9e927" />
+
+### 실패 
+- Pick-and-Place (파지 실패)
+<img width="480" height="270" alt="공_놓치는_경우_-_평가" src="https://github.com/user-attachments/assets/3a664b29-42c6-4012-aecc-ef7192d3fdda" />
+
+- 분리 수거 (장애물 충돌)
+<img width="480" height="270" alt="분리수거_실패케이스" src="https://github.com/user-attachments/assets/0a00ec5b-ec3f-4e94-b9c7-5dd56849bee5" />
 
 
+
+## 결과 영상 
 
 ## 목차
 
