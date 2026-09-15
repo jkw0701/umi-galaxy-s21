@@ -5,8 +5,8 @@
 > - 본 프로젝트: Galaxy **S21** (0.5배율 카메라, 좁은 시야각) + **DROID-SLAM** only, IMU 미사용
 
 ---
-<img width="428" height="571" alt="s21_umi2" src="https://github.com/user-attachments/assets/24cc1b8c-e41f-46a0-9f8e-1b0576d3a29c" />
-<img width="571" height="428" alt="s21_umi" src="https://github.com/user-attachments/assets/2389f94f-bea5-45da-afb8-9cc35316891c" />
+<img width="300" height="400" alt="s21_umi2" src="https://github.com/user-attachments/assets/24cc1b8c-e41f-46a0-9f8e-1b0576d3a29c" />
+<img width="400" height="300" alt="s21_umi" src="https://github.com/user-attachments/assets/2389f94f-bea5-45da-afb8-9cc35316891c" />
 
 ## 결과 영상
 
